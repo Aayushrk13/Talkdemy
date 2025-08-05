@@ -12,11 +12,10 @@ function Login(){
             <p className="text-4xl font-light">Welcome</p>
             <p className="text-xl font-extralight">Connect with the class in real time.</p>
         </div>
-        <form action="tbd" method="get">
+        <form action="http://localhost:8000/user/login" method="post">
             <div className=" flex gap-6 flex-col">
-                <Input type="email" placeholder="Email" className="h-9 w-96"></Input>
-                <Input type="password" placeholder="Password" className="w-96 h-9"></Input>
-
+                <Input type="email" placeholder="Email" className="h-9 w-96" name="email"></Input>
+                <Input type="password" placeholder="Password" className="w-96 h-9" name="password"></Input>
                 <Button className="w-96 h-9">Login</Button>
             </div>
         </form>

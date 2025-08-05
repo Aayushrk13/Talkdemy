@@ -1,5 +1,8 @@
-import { Schema, model } from "mongoose";
-const Userschema = new Schema({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.User = void 0;
+const mongoose_1 = require("mongoose");
+const Userschema = new mongoose_1.Schema({
     name: {
         type: String,
         required: true,
@@ -18,6 +21,5 @@ const Userschema = new Schema({
         enum: ["teacher", "student"]
     }
 }, { timestamps: { createdAt: true, updatedAt: false } });
-const User = model("user", Userschema);
-export { User };
-//# sourceMappingURL=user.model.js.map
+const User = (0, mongoose_1.model)("user", Userschema);
+exports.User = User;
