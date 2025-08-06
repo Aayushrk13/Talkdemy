@@ -10,7 +10,7 @@ require("dotenv/config.js");
 const app = (0, express_1.default)();
 const port = process.env.PORT;
 console.log(process.env.PORT);
-(0, mongoose_1.connect)(process.env.DB_CONNECTION || "fail")
+(0, mongoose_1.connect)(process.env.DB_CONNECTION || "Fail")
     .then(() => {
     console.log("DB is connected");
 }).catch((err) => {
