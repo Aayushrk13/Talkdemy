@@ -1,5 +1,5 @@
 import express from "express";
-import userrouter from "./routes/login.route.js";
+import userrouter from "./routes/user.route.js";
 import {connect} from "mongoose";
 import 'dotenv/config.js'
 const app = express()

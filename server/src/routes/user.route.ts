@@ -4,4 +4,6 @@ const router = Router()
 
 router.post("/login",login)
 
+router.post("/signup",)
+
 export default router;

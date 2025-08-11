@@ -30,7 +30,6 @@ function Chat(){
         setmessage(e.target.value);
     }
     const handlebuttonclick = ()=>{
-        console.log(message);
         let messageobj = {
             messageid:"101",
             User : dummy_user,
@@ -38,7 +37,6 @@ function Chat(){
         }
         setmessages([...messages,messageobj])
         setmessage("")
-        console.log(messages);
     }
 
     return(

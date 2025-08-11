@@ -9,3 +9,8 @@ export async function login(req: Request,res: Response){
         res.json({message:"Error"});
     }
 }
+
+export async function signup(req: Request,res: Response){
+    const {name,email,password,role} = req.body;
+    //create a user instance and register it in DB and check if the email is valid using OAuth
+}
