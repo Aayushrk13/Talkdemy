@@ -14,9 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectDB = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
+require("dotenv/config.js");
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const connectionInstance = yield mongoose_1.default.connect("mongodb://127.0.0.1:27017/Talkdemy");
+        const connectionInstance = yield mongoose_1.default.connect(process.env.DB_CONNECTION || "FAIL");
+        console.log("GREAT SUCCESS");
     }
     catch (error) {
         console.log("Something went wrong while connecting MONGODB");
