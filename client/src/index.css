@@ -121,6 +121,21 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* global.css or App.css */
+div::-webkit-scrollbar {
+  width: 6px;          /* small width */
+}
+
+div::-webkit-scrollbar-thumb {
+  background-color: #888; /* thumb color */
+  border-radius: 3px;
+}
+
+div::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* track color */
+}
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

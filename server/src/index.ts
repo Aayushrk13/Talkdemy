@@ -1,7 +1,6 @@
 import express from "express";
 import userrouter from "./routes/user.route.js";
 import {connectDB} from "./db/index.js";
-import {checkauth} from "./controller/auth.controller.js";
 import cors from "cors";
 import cookieparser from "cookie-parser";
 import 'dotenv/config.js'
@@ -20,7 +19,6 @@ app.use(cookieparser())
 
 
 app.use("/user",userrouter);
-app.get("/login",checkauth);
 app.listen(port,()=>{
     console.log(`Listeing on port :${port}`);
 })

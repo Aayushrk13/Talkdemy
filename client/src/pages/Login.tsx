@@ -1,38 +1,26 @@
 import { Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {Input} from '@/components/ui/input'
+
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { useUser } from "@/context/usercontext";
 import { useNavigate } from "react-router-dom";
+
 function Login(){
-    const navigate = useNavigate();
     useEffect(()=>{
-        axios.get("http://localhost:8000/login",{withCredentials:true})
-        .then((res)=>{
-            if(res.data){
-                console.log(res.data);
-                navigate("/chat") //use context fro user data and state management
-            }
-        })
-        .catch((err)=>{
-            console.log(err.data);
-        })
+       userContext.loginByToken();
     },[])
+
+    const navigate = useNavigate();
+
+    const userContext = useUser();
     const [email,setemail] = useState<string>("");
     const [password,setpassword] = useState<string>("");
     const handlesubmit = ()=>{
-        axios.post("http://localhost:8000/user/login",{email:email,password:password},{withCredentials:true})
-        .then(response=>handleresponse(response.data))
-        .catch(err=>{console.log(err.response.data)}) 
+        userContext.login({email:email,password:password});
     }
-    const handleresponse = (res_data : any)=>{
-        if (res_data){
-            console.log(res_data);
-            navigate("/chat")
-        }else{
-            console.log("not found suer");
-        }
-    }
+
+
     return(<div className="h-screen flex flex-col">
     <div className=" flex flex-row w-full justify-center items-center py-4 border-b-2 border-[#A1ADB5] gap-2">
         <Boxes />
@@ -51,6 +39,11 @@ function Login(){
                     setpassword(e.target.value)
                 }}></Input>
                 <Button className="w-96 h-9" onClick={handlesubmit}>Login</Button>
+                <span className="self-center">
+                    Don't have an account? <a className="underline font-medium" onClick={()=>{
+                        navigate("/signup");
+                    }}>Sign up</a>
+                </span>
             </div>
     </div>
     </div>);
