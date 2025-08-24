@@ -1,5 +1,8 @@
 import express from "express";
+import http from "http";
+import { initSocket } from "./socket/index.js";
 import userrouter from "./routes/user.route.js";
+import chatrouter from "./routes/chat.route.js";
 import {connectDB} from "./db/index.js";
 import cors from "cors";
 import cookieparser from "cookie-parser";
@@ -19,6 +22,12 @@ app.use(cookieparser())
 
 
 app.use("/user",userrouter);
-app.listen(port,()=>{
+app.use("/chat",chatrouter);
+
+
+const server = http.createServer(app);
+initSocket(server);
+
+server.listen(port,()=>{
     console.log(`Listeing on port :${port}`);
 })

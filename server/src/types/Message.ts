@@ -1,4 +1,5 @@
-export interface User{
+
+interface User{
     _id : string,  //This will be the id from database
     name : string,
     email : string,
@@ -6,3 +7,9 @@ export interface User{
     isAnonymous : boolean
 }
 
+
+export interface Message{
+    messageid : string | null,
+    messagecontent : string
+    User : User | null
+}

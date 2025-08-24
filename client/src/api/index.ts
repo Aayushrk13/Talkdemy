@@ -29,9 +29,14 @@ const loginUserByToken=()=>{
     return apiObj.get("user/auth");
 }
 
+const getclasses=(id:string)=>{
+    return apiObj.get(`chat/classes/${id}`);
+}
+
 export{
     loginUser,
     registerUser,
     logoutUser,
-    loginUserByToken
+    loginUserByToken,
+    getclasses
 }

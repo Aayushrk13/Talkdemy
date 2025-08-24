@@ -1,1 +1,0 @@
-{"root":["../src/index.ts","../src/controller/user.controller.ts","../src/db/index.ts","../src/model/user.model.ts","../src/routes/user.route.ts","../src/types/token.ts"],"version":"5.9.2"}
