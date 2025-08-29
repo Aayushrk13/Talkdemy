@@ -1,4 +1,4 @@
-import { User } from "../model/user.model.js";
+import  User from "../model/user.model.js";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { Token } from "types/token.js";
@@ -36,7 +36,6 @@ export async function login(req: Request, res: Response) {
 export async function register(req: Request, res: Response) {
   try {
     const { name, email, password, role } = req.body;
-    console.log(req.body);
     const existinguser = await User.findOne({ email: email });
     if (existinguser)
       return res

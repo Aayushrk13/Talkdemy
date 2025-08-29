@@ -3,7 +3,7 @@ export interface Group {
   _id: string;
   name: string;
   avatar: string;
-  members: string[] | null;
+  members: string[];
   teacher_id: string;
-  messages: Message[] | null | string;
+  messages: Message[] | null;
 }

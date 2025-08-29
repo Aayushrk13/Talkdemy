@@ -7,9 +7,10 @@ interface User{
     isAnonymous : boolean
 }
 
+export interface Messagetype{
 
-export interface Message{
-    messageid : string | null,
-    messagecontent : string
-    User : User | null
+    content : string
+    sender_id : User["_id"] 
+    status : "read" | "delivered" | "sent" 
+    group_id : string
 }

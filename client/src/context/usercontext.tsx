@@ -19,14 +19,12 @@ export const UserContext = createContext<{
   register: (data: Signup) => Promise<void>;
   logout: () => Promise<void>;
   loginByToken: () => Promise<void>;
-  toggleAnonymous : ()=>void;
 }>({
   user: null,
   login: async () => {},
   register: async () => {},
   logout: async () => {},
   loginByToken: async () => {},
-  toggleAnonymous:()=>{},
 });
 
 export const useUser = () => {
@@ -46,7 +44,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const response = await loginUser(data);
       const res_data = response.data;
-      setuser({...res_data.user,isAnonymous:false});
+      setuser({ ...res_data.user, isAnonymous: false });
       navigate("/chat");
     } catch (e: any) {
       console.log(e.message);
@@ -77,7 +75,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const response = await loginUserByToken();
       const res_data = response.data;
-      setuser({...res_data.user,isAnonymous:false});
+      setuser({ ...res_data.user, isAnonymous: false });
       navigate("/chat");
     } catch (e: any) {
       console.log(e.message);
@@ -85,12 +83,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const toggleAnonymous=()=>{
-    setuser(prev => prev ? {...prev,isAnonymous:!prev.isAnonymous}:prev);
-  }
   return (
     <UserContext.Provider
-      value={{ user, login, register, logout, loginByToken,toggleAnonymous }}
+      value={{ user, login, register, logout, loginByToken }}
     >
       {children}
     </UserContext.Provider>

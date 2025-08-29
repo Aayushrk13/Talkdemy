@@ -1,32 +1,23 @@
-import { ObjectId, Schema,SchemaTypes,model} from "mongoose";
+import { Schema,SchemaTypes,Types,model} from "mongoose";
 
-interface IClass extends Document{
-    name:string,
-    avatar:string,
-    members:ObjectId[],
-    teacher_id:ObjectId,
-    messages:string //use message type when the messages are ready to be stored
-}
-
-const ClassSchema :Schema<IClass>= new Schema({
+const ClassSchema = new Schema({
     name:{
-        type:String,
-        required:true
-    },
-    avatar:{
         type:String,
         required:true
     },
     members:{
         type:[SchemaTypes.ObjectId],
+        ref : "User",
         required:true
     },
     teacher_id:{
         type:SchemaTypes.ObjectId,
         required:true
     },
-    messages:{
-        type:String,
+    last_message:{
+        content : String,
+        sender_id: {type : SchemaTypes.ObjectId, ref: "User"},
+        timestamp : Date
     },
 },{
     timestamps:{createdAt:true,updatedAt:true}
@@ -34,6 +25,4 @@ const ClassSchema :Schema<IClass>= new Schema({
 
 const Class = model("Class", ClassSchema);
 
-export{
-    Class
-}
+export default Class;

@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { Message } from "types/Message";
 
 interface Signup{
     name:string,
@@ -33,10 +34,16 @@ const getclasses=(id:string)=>{
     return apiObj.get(`chat/classes/${id}`);
 }
 
+const getmembers = (members_id : string[])=>{
+    return apiObj.post("chat/members",members_id);
+}
+
+
 export{
     loginUser,
     registerUser,
     logoutUser,
     loginUserByToken,
-    getclasses
+    getclasses,
+    getmembers,
 }

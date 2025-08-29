@@ -29,6 +29,5 @@ const Userschema :Schema<IUser> = new Schema({
 },{timestamps:{createdAt:true,updatedAt:false}})
 
 const User = model("user",Userschema)
-export{
-    User
-}
+
+export default User;
