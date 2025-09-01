@@ -31,8 +31,7 @@ export async function getmembers(req:Request,res:Response){
    } 
 }
 //wont be used to handle message request instead use as a next function for messages
-export async function handle_message(req:Request,res:Response){
-    const message_obj = req.body as Messagetype;
+export async function handle_message(message_obj:Messagetype){
     console.log("hit");
     try{
         const message = new Message({
@@ -40,11 +39,22 @@ export async function handle_message(req:Request,res:Response){
             content : message_obj.content,
             status : message_obj.status,
             sender_id : new ObjectId(message_obj.sender_id),
+            sender_name: message_obj.sender_name
         });
         await message.save();
-        return res.status(200);
     }catch(e){
         console.log(e);
-        return res.status(401).json({message:"Something went wrong while entering message to the data base"})
+    }
+}
+
+export async function get_messages(req:Request,res:Response){
+    const {group_id} = req.params;
+    const id = new  ObjectId(group_id);
+    try{
+        const messages = await Message.find({group_id:id})
+        return res.status(200).json({success:true,messages:messages});
+    }catch(e){
+        console.log(e);
+        return res.status(500).json({message:"Internal server error"})
     }
 }

@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { useGroup } from "@/context/groupcontext";
 import { useUser } from "@/context/usercontext";
 import { socket } from "@/socket/socket";
-import { getmembers } from "@/api";
+import { getmembers,getmessages } from "@/api";
 import type { Group } from "types/Group";
 import type { Message } from "../../types/Message";
 
@@ -68,6 +68,7 @@ function Chat() {
 
   useEffect(() => {
     fetchmembers(currentgroup.members);
+    fetchmessages(currentgroup._id);
   }, [currentgroup]);
   //use typescript types to form classes
   //   // Update current group when groups are fetched
@@ -80,15 +81,19 @@ function Chat() {
   const fetchmembers = async (members_id: string[]) => {
     const response = await getmembers(members_id);
     const { data } = response;
-
     setmembers(data.members_data);
   };
+
+  const fetchmessages = async (group_id:string)=>{
+    const res = await getmessages(group_id);
+    const {data} = res;
+    setmessages(data.messages);
+  }
 
   const handleinputchange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setmessage(e.target.value);
   };
-  const handlemessageincoming = (message_data: Message, group_data: Group) => {
-    console.log(group_data);
+  const handlemessageincoming = (message_data: Message) => {
     setmessages((prev)=>[...prev,message_data])
   };
 
@@ -102,13 +107,13 @@ function Chat() {
     } as Message;
 
     setmessages((prev) => [...prev, messageobj]);
-    socket.emit("message", messageobj, currentgroup);
+    socket.emit("message",messageobj);
     setmessage("");
   };
 
   const handlegroupclick = (index: number) => {
     setcurrentgroup(groupContext.groups[index]);
-    console.log(currentgroup);
+    setmessages([]);
   };
 
   return (
@@ -168,12 +173,14 @@ function Chat() {
                 {currentgroup.name}
               </h2>
             </div>{" "}
+            {!isDetailsOpen&&
             <button
               onClick={() => setIsDetailsOpen(true)}
               className="text-xs rounded px-2 py-1 bg-gray-300 text-white hover:bg-gray-500 transition"
             >
               <ListCollapse />
             </button>
+            }
           </div>
 
           <div className="flex flex-col flex-1 min-h-0 justify-between overflow-hidden ">

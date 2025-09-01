@@ -25,6 +25,7 @@ const useGroup = () => {
 
 const GroupProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [groups, setgroups] = useState<Group[]>([]);
+  
   const getgroups = async (id: User["_id"]) => {
     if (id === "") throw new Error("No User is logged in");
     try {

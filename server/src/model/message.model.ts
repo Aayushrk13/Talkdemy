@@ -4,7 +4,8 @@ interface IMessage extends Document {
     group_id: ObjectId,
     sender_id : ObjectId,
     content : String,
-    status : 'read' | 'delivered' | 'sent'
+    status : 'read' | 'delivered' | 'sent',
+    sender_name:String
 }
 
 const MessageSchema : Schema<IMessage> = new Schema({
@@ -24,6 +25,8 @@ const MessageSchema : Schema<IMessage> = new Schema({
         type : String,
         required : true,
         enum : ["read","delivered","sent"]
+    },sender_name:{
+        type : String,
     }
 },{
     timestamps:{createdAt:true,updatedAt:true}

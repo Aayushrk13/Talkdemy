@@ -8,7 +8,7 @@ interface User{
 }
 
 export interface Messagetype{
-
+    sender_name:string
     content : string
     sender_id : User["_id"] 
     status : "read" | "delivered" | "sent" 
