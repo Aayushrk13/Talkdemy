@@ -1,6 +1,5 @@
 import Navbar from "@/components/Navbar";
 import ChatWindow from "@/components/chat/chatwindow";
-import MessageBox from "@/components/chat/messagebox";
 import GroupDetails from "@/components/widget/Groupdetail";
 import GroupList from "@/components/sidebar/grouplist";
 import UserSection from "@/components/sidebar/userlist";
@@ -51,17 +50,19 @@ function Chat() {
   useEffect(() => {
     if (groupContext.groups.length > 0) {
       setcurrentgroup(groupContext.groups[0]);
-      fetchmembers(groupContext.groups[0].members);
+      fetchmembers(groupContext.groups[0]);
     }
   }, [groupContext.groups]);
 
   useEffect(() => {
-    fetchmembers(currentgroup.members);
+    if(!currentgroup._id) return;
+    fetchmembers(currentgroup);
+    setmessages([]);
     fetchmessages(currentgroup._id);
   }, [currentgroup]);
 
-  const fetchmembers = async (members_id: string[]) => {
-    const response = await getmembers(members_id);
+  const fetchmembers = async (group: Group) => {
+    const response = await getmembers(group);
     const { data } = response;
     setmembers(data.members_data);
   };
@@ -69,6 +70,7 @@ function Chat() {
   const fetchmessages = async (group_id: string) => {
     const res = await getmessages(group_id);
     const { data } = res;
+    console.log(data.messages);
     setmessages(data.messages);
   };
 
@@ -79,7 +81,7 @@ function Chat() {
     setmessages((prev) => [...prev, msg]);
 
   const handlebuttonclick = () => {
-    if(!userContext.user || !currentgroup._id) return;
+    if (!userContext.user || !currentgroup._id) return;
     const messageobj: Message = {
       sender_id: userContext.user?._id,
       sender_name: isanonymous ? "Anonymous" : userContext.user?.name,
@@ -95,7 +97,6 @@ function Chat() {
 
   const handlegroupclick = (index: number) => {
     setcurrentgroup(groupContext.groups[index]);
-    setmessages([]);
   };
   return (
     <div className="h-screen w-screen flex flex-col">
