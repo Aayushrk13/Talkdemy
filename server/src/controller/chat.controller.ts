@@ -25,7 +25,6 @@ export async function getmembers(req:Request,res:Response){
         return new ObjectId(id);
     })
     const members_data = await User.find({_id:members_id});
-    client.set()
     return res.status(200).json({success:true,members_data:members_data});
    }catch(e){
     console.log(e);
