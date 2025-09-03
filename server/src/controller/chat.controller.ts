@@ -4,6 +4,7 @@ import type { Messagetype } from "types/Message";
 import Class from "../model/class.model";
 import User from "../model/user.model";
 import Message from "../model/message.model";
+import client from "../db/redis.js";
 
 export async function getclasses(req:Request,res:Response) {
     try{
@@ -24,6 +25,7 @@ export async function getmembers(req:Request,res:Response){
         return new ObjectId(id);
     })
     const members_data = await User.find({_id:members_id});
+    client.set()
     return res.status(200).json({success:true,members_data:members_data});
    }catch(e){
     console.log(e);
