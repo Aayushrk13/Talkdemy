@@ -6,6 +6,7 @@ import chatrouter from "./routes/chat.route.js";
 import {connectDB} from "./db/index.js";
 import cors from "cors";
 import cookieparser from "cookie-parser";
+import client from "./db/redis.js";
 import 'dotenv/config.js'
 const app = express()
 const port = process.env.PORT ;
@@ -23,6 +24,13 @@ app.use(cookieparser())
 
 app.use("/user",userrouter);
 app.use("/chat",chatrouter);
+
+app.get("/redis-test",async(req,res)=>{
+    console.log("hit");
+    await client.set("test:3","from backend");
+    console.log("JOB DONE");
+    return res.send("Redis is used");
+})
 
 
 const server = http.createServer(app);
