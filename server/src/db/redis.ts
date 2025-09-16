@@ -1,6 +1,6 @@
 import { createClient,BasicClientSideCache } from "redis";
 const cache = new BasicClientSideCache({
-    ttl:0,
+    ttl:600000,
     maxEntries:0,
     evictPolicy:"LRU",
     recordStats:true

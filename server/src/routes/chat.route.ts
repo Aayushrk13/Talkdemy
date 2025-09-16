@@ -7,6 +7,6 @@ router.route("/classes/:user_id").get(getclasses);
 
 router.route("/members").post(getGroupMemberCache,getmembers);
 
-router.route("/messages/:group_id").get(getMessagesCache,get_messages);
+router.route("/messages/:group_id/:page").get(getMessagesCache,get_messages);
 
 export default router;

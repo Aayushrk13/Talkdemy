@@ -15,7 +15,7 @@ export const getGroupMemberCache = async (
     }
     return res.status(200).json({ success: true, members_data: members_data });
   } catch (e) {
-    console.log(e);
+    console.log("error in caching members",e);
   }
 };
 
@@ -25,15 +25,15 @@ export const getMessagesCache = async (
   next: NextFunction
 ) => {
   try {
-    const { group_id } = req.params;
-    // const messages = await client.json.get(`messages:${group_id}`);
-    const raw_messages = await client.lRange(`messages:${group_id}`,-10,-1)
-    const messages = raw_messages.map(m=>JSON.parse(m));
-    console.log(messages);
+    const { group_id,page} = req.params;
+    let pagenumber = Number(page);
+    const stop =  -1 - (10 * (pagenumber - 1));  
+    const start = stop - 9;
+    const raw_messages = await client.lRange(`messages:${group_id}`, start, stop);
+    const messages = raw_messages.map((m) => JSON.parse(m));
     if (messages.length == 0) return next();
-    console.log("got message from redis");
     return res.status(200).json({ success: true, messages: messages });
   } catch (e) {
-    console.log(e);
+    console.log("error in caching message",e);
   }
 };

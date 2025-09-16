@@ -45,24 +45,35 @@ export async function handle_message(message_obj: Messagetype) {
       sender_name: message_obj.sender_name,
     });
     await message.save();
-    client.rPush(`messages:${message_obj.group_id}`,JSON.stringify(message_obj))
+    await client.rPush(`messages:${message_obj.group_id}`,JSON.stringify(message_obj));
   } catch (e) {
     console.log(e);
   }
 }
 
 export async function get_messages(req: Request, res: Response) {
-  const { group_id } = req.params;
-  const pageSize = 5;
+  const { group_id, page } = req.params;
+  if (group_id == '') return res.status(404).send("No group id")
+  const pageSize = 10;
+  const skipSize = (Number(page)+1) * pageSize - pageSize;
   const id = new ObjectId(group_id);
   try {
-    const messages = await Message.find({ group_id: id }).sort({createdAt:1}).lean<Messagetype[]>();
-    const serialized = messages.map(m=>JSON.stringify(m));
-    console.log("from db");
-    await client.rPush(`messages:${group_id}`,serialized)
+    const messages = await Message.find({ group_id: id })
+      .sort({ createdAt: 1 })
+      .lean<Messagetype[]>()
+      .skip(skipSize);
+    console.log(messages);
+    const serialized = messages.map((m) => JSON.stringify(m));
+    console.log("from db",serialized);
+    // await client.rPush(`messages:${group_id}`,serialized);
+    if (!serialized || serialized.length == 0){
+      console.log("empty serialized",serialized);
+      return res.status(200).json({success: true, messages: []})
+    }
+    await client.rPush(`messages:${group_id}`, serialized);
     return res.status(200).json({ success: true, messages: messages });
   } catch (e) {
     console.log(e);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({success:false,messages:[]})
   }
 }
