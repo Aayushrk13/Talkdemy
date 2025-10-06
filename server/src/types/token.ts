@@ -1,4 +1,5 @@
 export interface Token {
     _id : string,
-    iat : number
+    iat : number,
+    role:string
 }

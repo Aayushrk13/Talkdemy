@@ -9,7 +9,7 @@ interface Signup{
 }
 
 const apiObj = axios.create({
-    baseURL : "http://localhost:8000",
+    baseURL : "http://localhost:8000/api/v1",
     withCredentials:true,
     timeout : 10000
 })
@@ -38,8 +38,8 @@ const getmembers = (group :Group )=>{
     return apiObj.post("chat/members",group);
 }
 
-const getmessages = (group_id:string)=>{
-    return apiObj.get(`chat/messages/${group_id}`);
+const getmessages = (group_id:string,page:number)=>{
+    return apiObj.get(`chat/messages/${group_id}/${page}`);
 }
 
 

@@ -4,7 +4,7 @@ interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  role: 'student' | 'teacher';
+  role: 'student' | 'teacher' ;
   createdAt: Date;
 }
 

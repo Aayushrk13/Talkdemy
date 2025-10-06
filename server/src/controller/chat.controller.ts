@@ -33,7 +33,7 @@ export async function getmembers(req: Request, res: Response) {
     return res.status(400).json({ success: false, message: e });
   }
 }
-//wont be used to handle message request instead use as a next function for messages
+
 export async function handle_message(message_obj: Messagetype) {
   console.log("hit");
   try {
@@ -55,17 +55,15 @@ export async function get_messages(req: Request, res: Response) {
   const { group_id, page } = req.params;
   if (group_id == '') return res.status(404).send("No group id")
   const pageSize = 10;
-  const skipSize = (Number(page)+1) * pageSize - pageSize;
+  const skipSize = (Number(page)) * pageSize - pageSize;
   const id = new ObjectId(group_id);
   try {
     const messages = await Message.find({ group_id: id })
       .sort({ createdAt: 1 })
       .lean<Messagetype[]>()
       .skip(skipSize);
-    console.log(messages);
     const serialized = messages.map((m) => JSON.stringify(m));
     console.log("from db",serialized);
-    // await client.rPush(`messages:${group_id}`,serialized);
     if (!serialized || serialized.length == 0){
       console.log("empty serialized",serialized);
       return res.status(200).json({success: true, messages: []})
