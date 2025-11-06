@@ -17,38 +17,48 @@ import type { User } from "../../types/User.ts";
 
 function Chat() {
 	const userContext = useUser();
-	const groupContext = useGroup();
-	const pageContext = usePage();
-	const [isanonymous, setisanonymous] = useState(false);
-	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-	const [message, setmessage] = useState("");
-	const [messages, setmessages] = useState<Message[]>([]);
-	const [currentgroup, setcurrentgroup] = useState<Group>({
-		_id: "",
-		name: "",
-		avatar: "",
-		members: [],
-		teacher_id: "",
-		messages: null,
-	});
-	const [members, setmembers] = useState<User[]>([]);
+
+  useEffect(()=>{
+    userContext.loginByToken();
+  },[])
+
 
 	useEffect(() => {
-		userContext.loginByToken();
+    if(!userContext.user)return;
 		socket.connect();
 		socket.on("message", handlemessageincoming);
 		return () => {
 			socket.disconnect();
 			socket.off("message");
 		};
-	}, [userContext]);
+	}, [userContext.user]);
+
+	const groupContext = useGroup();
 
 	useEffect(() => {
 		if (userContext.user) {
 			groupContext.getgroups(userContext.user._id);
 			socket.emit("joinrooms", userContext.user._id);
 		}
-	}, [userContext.user, groupContext]);
+	}, [userContext.user]);
+
+
+	const fetchmembers = async (group: Group) => {
+		const response = await getmembers(group);
+		const { data } = response;
+		setmembers(data.members_data);
+	};
+
+	const fetchmessages = async (group_id: string, page: number) => {
+		if (!group_id || group_id == "") return;
+		if (!pageContext.hasMorepages && page>1) return;
+		const res = await getmessages(group_id, page);
+		const { data } = res;
+		if (data.messages.length == 0) {
+			pageContext.togglehasMorepages();
+		}
+		setmessages((prev) => [...data.messages, ...prev]);
+	};
 
 	useEffect(() => {
 		if (groupContext.groups.length > 0) {
@@ -57,8 +67,19 @@ function Chat() {
 		}
 	}, [groupContext.groups]);
 
+	const pageContext = usePage();
+	const [currentgroup, setcurrentgroup] = useState<Group>({
+		_id: "",
+		name: "",
+		avatar: "",
+		members: [],
+		teacher_id: "",
+		messages: null,
+	});
+
 	useEffect(() => {
 		if (!currentgroup._id) return;
+    console.log(currentgroup)
 		fetchmembers(currentgroup);
 		setmessages([]);
 		pageContext.resetPage();
@@ -70,24 +91,11 @@ function Chat() {
 		fetchmessages(currentgroup._id, pageContext.page);
 	}, [pageContext.page]);
 
-	const fetchmembers = async (group: Group) => {
-		const response = await getmembers(group);
-		const { data } = response;
-		setmembers(data.members_data);
-	};
-
-	const fetchmessages = async (group_id: string, page: number) => {
-		if (!group_id || group_id == "") return;
-		if (!pageContext.hasMorepages) return;
-		const res = await getmessages(group_id, page);
-		const { data } = res;
-		console.log("data from server", data);
-		console.log(data.messages);
-		if (data.messages.length == 0) {
-			pageContext.togglehasMorepages();
-		}
-		setmessages((prev) => [...data.messages, ...prev]);
-	};
+	const [isanonymous, setisanonymous] = useState(false);
+	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+	const [message, setmessage] = useState("");
+	const [messages, setmessages] = useState<Message[]>([]);
+	const [members, setmembers] = useState<User[]>([]);
 
 	const toggleAnonymous = () => setisanonymous(!isanonymous);
 	const handleinputchange = (e: React.ChangeEvent<HTMLInputElement>) =>

@@ -1,6 +1,7 @@
 import React, {
   createContext,
   useContext,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -36,8 +37,10 @@ const GroupProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
   
+  const value = useMemo(()=>({groups,getgroups}),[groups])
+
   return (
-    <GroupContext.Provider value={{ groups, getgroups }}>
+    <GroupContext.Provider value={value}>
       {children}
     </GroupContext.Provider>
   );

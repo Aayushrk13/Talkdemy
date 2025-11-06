@@ -9,7 +9,7 @@ const client = createClient({
     clientSideCache:cache,
     RESP:3
 });
-client.on("error", (err) => console.log("Redis client error", err));
+client.on("error", (_err) => console.log("Redis client error"));
 
 client.connect();
 

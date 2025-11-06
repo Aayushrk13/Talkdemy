@@ -24,6 +24,7 @@ export const PageProvider: React.FC<{ children: ReactNode }> = ({
   }
   const resetPage = ()=>{
     setpage(1);
+    sethasMorepages(true);
   }
 
   const getmorePages = () => {

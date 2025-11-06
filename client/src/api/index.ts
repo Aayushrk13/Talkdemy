@@ -1,54 +1,76 @@
 import axios from "axios";
 import type { Group } from "types/Group";
 
-interface Signup{
-    name:string,
-    email:string,
-    password:string,
-    role:"student" | "teacher" | ""
+interface Signup {
+    name: string;
+    email: string;
+    password: string;
+    role: "student" | "teacher" | "";
 }
 
 const apiObj = axios.create({
-    baseURL : "http://localhost:8000/api/v1",
-    withCredentials:true,
-    timeout : 10000
-})
+    baseURL: "http://localhost:8000/api/v1",
+    withCredentials: true,
+    timeout: 10000,
+});
 
-const loginUser = (data : {email:string;password:string})=>{
-    return apiObj.post("user/login",data);
-}
+const loginUser = (data: { email: string; password: string; role: string }) => {
+    return apiObj.post("user/login", data);
+};
 
-const registerUser = (data:Signup)=>{
-    return apiObj.post("user/register",data);
-}
+const registerUser = (data: Signup) => {
+    return apiObj.post("user/register", data);
+};
 
-const logoutUser=()=>{
+const logoutUser = () => {
     return apiObj.get("user/logout");
-}
+};
 
-const loginUserByToken=()=>{
+const loginUserByToken = () => {
     return apiObj.get("user/auth");
-}
+};
 
-const getclasses=(id:string)=>{
+const loginUserByTokenAdmin = () => {
+    return apiObj.get("admin/loginbytoken");
+};
+
+const getclasses = (id: string) => {
     return apiObj.get(`chat/classes/${id}`);
+};
+
+const getmembers = (group: Group) => {
+    return apiObj.post("/chat/members", group);
+};
+
+const getmessages = (group_id: string, page: number) => {
+    return apiObj.get(`/chat/messages/${group_id}/${page}`);
+};
+
+const getallgroups = () => {
+    return apiObj.get(`/admin/groups`);
+};
+
+const searchstudents = (query:string)=>{
+    return apiObj.get(`admin/getsearched_student?prefix=${query}`)
+}
+const searchteachers = (query:string)=>{
+    return apiObj.get(`admin/getsearched_teacher?prefix=${query}`)
 }
 
-const getmembers = (group :Group )=>{
-    return apiObj.post("chat/members",group);
+const creategroup = (groupData:any)=>{
+    return apiObj.post(`admin/creategroup`,groupData);
 }
-
-const getmessages = (group_id:string,page:number)=>{
-    return apiObj.get(`chat/messages/${group_id}/${page}`);
-}
-
-
-export{
+export {
     loginUser,
     registerUser,
     logoutUser,
     loginUserByToken,
+    loginUserByTokenAdmin,
     getclasses,
     getmembers,
     getmessages,
-}
+    getallgroups,
+    searchstudents,
+    searchteachers,
+    creategroup,
+};

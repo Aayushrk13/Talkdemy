@@ -21,12 +21,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cors(cors_option))
 app.use(cookieparser())
+app.use("/api/v1/user", userrouter);
+app.use("/api/v1/chat", chatrouter);
 
-
-app.use("api/v1/user", userrouter);
-app.use("api/v1/chat", chatrouter);
-
-app.use("api/v1/admin",adminauthMiddleware, adminrouter);
+app.use("/api/v1/admin", adminrouter);
 
 
 const server = http.createServer(app);

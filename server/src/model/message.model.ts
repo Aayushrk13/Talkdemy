@@ -18,7 +18,7 @@ const MessageSchema : Schema<IMessage> = new Schema({
         ref : "User"
     },
     content : {
-        type : "String",
+        type : String,
         required : true
     },
     status : {
