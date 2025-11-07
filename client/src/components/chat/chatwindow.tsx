@@ -13,8 +13,7 @@ interface ChatWindowProps {
   message: string;
   onMessageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSend: () => void;
-  disabled?: boolean;
-}
+  disabled?: boolean;}
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
   messages,
@@ -33,7 +32,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       const newHeight = div.scrollHeight;
       div.scrollTop = newHeight - prevScrollHeightRef.current; // preserve position
     }
-    console.log("in chatwindow frontend", messages);
   }, [messages]);
 
   const handleScroll = () => {

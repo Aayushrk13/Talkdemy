@@ -57,8 +57,24 @@ const searchteachers = (query:string)=>{
     return apiObj.get(`admin/getsearched_teacher?prefix=${query}`)
 }
 
+const getmembersadmin = (member_ids:string[])=>{
+    return apiObj.post("admin/getmembers",member_ids);
+
+}
 const creategroup = (groupData:any)=>{
     return apiObj.post(`admin/creategroup`,groupData);
+}
+const editgroup = (grouptobeupdated:any)=>{
+    return apiObj.post("admin/editgroup",grouptobeupdated);
+}
+const deletegroup = (grouptobeDeletedId:string)=>{
+    return apiObj.delete(`admin/editgroup?grouptobeDeleteId=${grouptobeDeletedId}`);
+}
+const getmessagesAdmin = (groupId:string)=>{
+    return apiObj.get(`admin/getmessagesAdmin?groupId=${groupId}`);
+}
+const getUser = (user_id:string)=>{
+    return apiObj.get(`admin/getuser?user_id=${user_id}`);
 }
 export {
     loginUser,
@@ -73,4 +89,9 @@ export {
     searchstudents,
     searchteachers,
     creategroup,
+    getmembersadmin,
+    editgroup,
+    deletegroup,
+    getmessagesAdmin,
+    getUser,
 };

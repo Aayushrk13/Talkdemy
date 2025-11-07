@@ -3,6 +3,8 @@ import { Token } from "types/token.js";
 import { Request, Response } from "express";
 import Class from "../model/class.model.js";
 import User from "../model/user.model.js"
+import { Group } from "types/Group.js";
+import Message from "../model/message.model.js";
 
 export const loginbytokenadmin = async(req:Request,res:Response)=>{
 	const token = req.cookies.adminaccesstoken;
@@ -36,15 +38,13 @@ export const loginbytokenadmin = async(req:Request,res:Response)=>{
 	}
 }
 
-const getAllStudents = async () => {
-	const allStudents = await User.find({ role: "student" });
-	return allStudents;
+export const getAllMembersofGroup = async (req:Request,res:Response) => {
+	const members_id = req.body;
+	console.log(members_id)
+	const allmembersofGroup = await User.find({_id:members_id });
+	return res.status(200).json({success:true,allMembersofGroup:allmembersofGroup});
 };
 
-const getAllTeachers = async () => {
-	const allTeachers = await User.find({ role: "teacher" });
-	return allTeachers;
-};
 
 export const search_student = async(req:Request,res:Response)=>{
 	const query = req.query.prefix as string;
@@ -78,9 +78,32 @@ export const createGroup = async(req: Request, res: Response) => {
 	}
 };
 
-export const editGroup = (req: Request, res: Response) => {};
+export const editGroup = async(req: Request, res: Response) => {
+	const grouptobeupdated : Group = req.body;
+	console.log(grouptobeupdated)
+	const updatedgroup = await Class.updateOne({_id:grouptobeupdated._id},{$set:{
+		name:grouptobeupdated.name,
+		members:grouptobeupdated.members,
+		teacher_id:grouptobeupdated.teacher_id,
+		last_message:null,
+	}});
+	console.log(updatedgroup)
+	if(updatedgroup){
+		return res.status(200).json({success:true});
+	}
+	return res.status(200).json({success:false});
+};
 
-export const deleteGroup = (req: Request, res: Response) => {};
+export const deleteGroup = async(req: Request, res: Response) => {
+	const grouptobeDeleteId = req.query.grouptobeDeleteId as string;
+	console.log(grouptobeDeleteId);
+	const deleted = await Class.deleteOne({_id:grouptobeDeleteId});
+	console.log(deleted)
+	if(deleted){
+		return res.status(200).json({success:true});
+	}
+	return res.status(200).json({success:false});
+};
 
 export const getGroups = async (req: Request, res: Response) => {
 	try {
@@ -93,3 +116,25 @@ export const getGroups = async (req: Request, res: Response) => {
 			.json({ success: false, message: "groups were not found" });
 	}
 };
+
+export const getmessagesAdmin = async(req:Request,res:Response)=>{
+	const group_id = req.query.groupId as string;
+	try{
+		const messages = await Message.find({group_id:group_id});
+		if(messages.length>0){
+			return res.status(200).json({success:true,messages:messages});
+		}
+			return res.status(200).json({success:true,messages:[]});
+	}catch(e:any){
+		console.log(e);
+	}
+}
+
+export const getUser = async(req:Request,res:Response)=>{
+	const user_id = req.query.user_id as string;
+	const user = await User.findOne({_id:user_id});
+	if(user){
+		return res.status(200).json({success:true,user_name:user.name});
+	}
+		return res.status(200).json({success:false});
+}

@@ -71,7 +71,6 @@ function Chat() {
 	const [currentgroup, setcurrentgroup] = useState<Group>({
 		_id: "",
 		name: "",
-		avatar: "",
 		members: [],
 		teacher_id: "",
 		messages: null,
