@@ -1,15 +1,12 @@
-import { createClient,BasicClientSideCache } from "redis";
-const cache = new BasicClientSideCache({
-    ttl:600000,
-    maxEntries:0,
-    evictPolicy:"LRU",
-    recordStats:true
-})
+import { createClient } from "redis";
+
 const client = createClient({
-    clientSideCache:cache,
-    RESP:3
+  socket: {
+    host: "127.0.0.1",
+    port: 6379,
+  },
 });
-client.on("error", (_err) => console.log("Redis client error"));
+client.on("error", (err) => console.log("Redis Client Error", err));
 
 client.connect();
 

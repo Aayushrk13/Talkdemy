@@ -35,7 +35,7 @@ const loginUserByTokenAdmin = () => {
 };
 
 const getclasses = (id: string) => {
-    return apiObj.get(`chat/classes/${id}`);
+    return apiObj.get(`chat/classes?id=${id}`);
 };
 
 const getmembers = (group: Group) => {
@@ -76,6 +76,14 @@ const getmessagesAdmin = (groupId:string)=>{
 const getUser = (user_id:string)=>{
     return apiObj.get(`admin/getuser?user_id=${user_id}`);
 }
+
+const upload_file=(file:FormData)=>{
+    return apiObj.post("chat/upload",file);
+}
+
+const checktoxicity = (message:string)=>{
+    return apiObj.post("chat/checktoxicity",{message});
+}
 export {
     loginUser,
     registerUser,
@@ -94,4 +102,6 @@ export {
     deletegroup,
     getmessagesAdmin,
     getUser,
+    upload_file,
+    checktoxicity,
 };

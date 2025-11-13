@@ -14,7 +14,7 @@ const GroupList: React.FC<GroupListProps> = ({ groups, onGroupClick }) => {
       <div className="space-y-1">
         {groups.map((group, index) => (
           <div
-            key={index}
+            key={group._id}
             onClick={() => onGroupClick(index)}
             className="px-3 py-2 rounded-lg flex items-center gap-2 text-gray-700 hover:bg-gray-100 cursor-pointer transition truncate"
           >

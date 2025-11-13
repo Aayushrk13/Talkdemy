@@ -12,7 +12,6 @@ export async function login(req: Request, res: Response) {
 			password: password,
 			role: role,
 		});
-		console.log(user);
 		if (user) {
 				const token = jwt.sign(
 					{ _id: user._id, role: user.role },
@@ -112,3 +111,7 @@ export async function loginByToken(req: Request, res: Response) {
 	}
 }
  
+export const logout = (_req:Request,res:Response)=>{
+	 res.clearCookie('accesstoken');
+	 return res.status(200).json({success:true});
+}

@@ -146,6 +146,7 @@ const AdminGroups: React.FC = () => {
 
 	const handleEdit = async (group: Group) => {
 		setEditId(group);
+		formData.name = group.name;
 		const memberids = group?.members;
 		memberids?.push(group?.teacher_id || "");
 		const response = await getmembersadmin(memberids || []);

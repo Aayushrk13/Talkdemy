@@ -11,5 +11,6 @@ export type Messagetype={
     content : string
     sender_id : string
     status : "read" | "delivered" | "sent" 
+    fileURL ?: string | null
     group_id : string
 }

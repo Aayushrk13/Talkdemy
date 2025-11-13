@@ -3,11 +3,11 @@ import ChatWindow from "@/components/chat/chatwindow";
 import GroupDetails from "@/components/widget/Groupdetail";
 import GroupList from "@/components/sidebar/grouplist";
 import UserSection from "@/components/sidebar/userlist";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGroup } from "@/context/groupcontext";
 import { useUser } from "@/context/usercontext";
 import { socket } from "@/socket/socket";
-import { getmembers, getmessages } from "@/api";
+import { checktoxicity, getmembers, getmessages } from "@/api";
 import type { Group } from "types/Group";
 import type { Message } from "types/Message";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,30 +18,44 @@ import type { User } from "../../types/User.ts";
 function Chat() {
 	const userContext = useUser();
 
-  useEffect(()=>{
-    userContext.loginByToken();
-  },[])
+	useEffect(() => {
+		userContext.loginByToken();
+	}, []);
 
+	const [currentgroup, setcurrentgroup] = useState<Group>({
+		_id: "",
+		name: "",
+		members: [],
+		teacher_id: "",
+		messages: null,
+	});
 
 	useEffect(() => {
-    if(!userContext.user)return;
-		socket.connect();
+		if (!userContext.user?._id) return;
+		if (!socket.connected) socket.connect();
 		socket.on("message", handlemessageincoming);
+		socket.on("file-uploaded", handlemessageincoming);
+		groupContext.getgroups(userContext.user._id);
+		socket.emit("joinrooms", userContext.user._id);
 		return () => {
-			socket.disconnect();
 			socket.off("message");
+			socket.off("file-uploaded");
+			socket.disconnect();
 		};
 	}, [userContext.user]);
 
 	const groupContext = useGroup();
+	const currentGroupRef = useRef<Group>(currentgroup);
+
+	useEffect(() => {
+		currentGroupRef.current = currentgroup;
+	}, [currentgroup]);
 
 	useEffect(() => {
 		if (userContext.user) {
-			groupContext.getgroups(userContext.user._id);
-			socket.emit("joinrooms", userContext.user._id);
+			console.log("hit");
 		}
 	}, [userContext.user]);
-
 
 	const fetchmembers = async (group: Group) => {
 		const response = await getmembers(group);
@@ -51,9 +65,10 @@ function Chat() {
 
 	const fetchmessages = async (group_id: string, page: number) => {
 		if (!group_id || group_id == "") return;
-		if (!pageContext.hasMorepages && page>1) return;
+		if (!pageContext.hasMorepages && page > 1) return;
 		const res = await getmessages(group_id, page);
 		const { data } = res;
+		console.log(data);
 		if (data.messages.length == 0) {
 			pageContext.togglehasMorepages();
 		}
@@ -68,24 +83,16 @@ function Chat() {
 	}, [groupContext.groups]);
 
 	const pageContext = usePage();
-	const [currentgroup, setcurrentgroup] = useState<Group>({
-		_id: "",
-		name: "",
-		members: [],
-		teacher_id: "",
-		messages: null,
-	});
 
 	useEffect(() => {
 		if (!currentgroup._id) return;
-    console.log(currentgroup)
 		fetchmembers(currentgroup);
-		setmessages([]);
-		pageContext.resetPage();
-		fetchmessages(currentgroup._id, pageContext.page);
+		pageContext.resetPage(); 
+		fetchmessages(currentgroup._id, 1); // manually load first page
 	}, [currentgroup]);
 
 	useEffect(() => {
+		if (pageContext.page === 1) return; 
 		console.log("page is changed", pageContext.page);
 		fetchmessages(currentgroup._id, pageContext.page);
 	}, [pageContext.page]);
@@ -99,16 +106,28 @@ function Chat() {
 	const toggleAnonymous = () => setisanonymous(!isanonymous);
 	const handleinputchange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setmessage(e.target.value);
-	const handlemessageincoming = (msg: Message) =>
-		setmessages((prev) => [...prev, msg]);
 
-	const handlebuttonclick = () => {
+	const handlemessageincoming = (msg: Message) => {
+		console.log(msg.group_id);
+		console.log(currentGroupRef.current._id);
+		if (msg.group_id != currentGroupRef.current._id) return;
+		setmessages((prev) => [...prev, msg]);
+	};
+
+	const handlebuttonclick = async () => {
 		if (!userContext.user || !currentgroup._id) return;
+		// //call backend for toxicity score
+		// const toxicity_response = await checktoxicity(message);
+		// if(toxicity_response.data.toxicity_score[0].score.value>0.7){
+		// 	alert("This message is very toxic. Please try to avoid such language.");
+		// 	return;
+		// }
 		const messageobj: Message = {
 			sender_id: userContext.user?._id,
 			sender_name: isanonymous ? "Anonymous" : userContext.user?.name,
 			content: message,
 			group_id: currentgroup._id,
+			fileURL: null,
 			status: "sent",
 		};
 
@@ -118,6 +137,8 @@ function Chat() {
 	};
 
 	const handlegroupclick = (index: number) => {
+		if (groupContext.groups[index]._id == currentgroup._id) return;
+		setmessages([]);
 		setcurrentgroup(groupContext.groups[index]);
 	};
 	return (
@@ -160,7 +181,8 @@ function Chat() {
 						message={message}
 						onMessageChange={handleinputchange}
 						onSend={handlebuttonclick}
-						disabled={!message}
+						socket={socket}
+						group_id={currentgroup._id}
 					/>
 				</div>
 

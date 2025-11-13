@@ -98,6 +98,7 @@ export const deleteGroup = async(req: Request, res: Response) => {
 	const grouptobeDeleteId = req.query.grouptobeDeleteId as string;
 	console.log(grouptobeDeleteId);
 	const deleted = await Class.deleteOne({_id:grouptobeDeleteId});
+	await Message.deleteMany({group_id:grouptobeDeleteId});
 	console.log(deleted)
 	if(deleted){
 		return res.status(200).json({success:true});

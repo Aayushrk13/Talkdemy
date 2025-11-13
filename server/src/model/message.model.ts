@@ -5,7 +5,8 @@ interface IMessage extends Document {
     sender_id : ObjectId,
     content : String,
     status : 'read' | 'delivered' | 'sent',
-    sender_name:String
+    sender_name:String,
+    fileURL:String
 }
 
 const MessageSchema : Schema<IMessage> = new Schema({
@@ -19,7 +20,6 @@ const MessageSchema : Schema<IMessage> = new Schema({
     },
     content : {
         type : String,
-        required : true
     },
     status : {
         type : String,
@@ -27,6 +27,9 @@ const MessageSchema : Schema<IMessage> = new Schema({
         enum : ["read","delivered","sent"]
     },sender_name:{
         type : String,
+    },
+    fileURL:{
+        type:String,
     }
 },{
     timestamps:{createdAt:true,updatedAt:true}

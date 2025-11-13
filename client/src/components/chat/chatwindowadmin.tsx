@@ -16,10 +16,12 @@ const ChatWindowAdmin: React.FC<ChatWindowAdminProps> = ({ currentGroup }) => {
 	useEffect(() => {
 		socket.connect();
 		socket.on("message", handlemessageincoming);
-        socket.emit("joinrooms","admin");
+		socket.on("file-uploaded", handlemessageincoming);
+		socket.emit("joinrooms", "admin");
 		return () => {
-			socket.disconnect();
 			socket.off("message");
+			socket.off("file-uploaded");
+			socket.disconnect();
 		};
 	}, []);
 	const [messages, setmessages] = useState<Message[]>([]);
@@ -31,6 +33,7 @@ const ChatWindowAdmin: React.FC<ChatWindowAdminProps> = ({ currentGroup }) => {
 	const fetchmessages = async (groupId: string | undefined) => {
 		if (groupId) {
 			const response = await getmessagesAdmin(groupId);
+			console.log(response.data.messages)
 			setmessages(response.data.messages);
 		}
 	};
@@ -41,12 +44,12 @@ const ChatWindowAdmin: React.FC<ChatWindowAdminProps> = ({ currentGroup }) => {
 			sender_name: "Admin",
 			content: message,
 			group_id: currentGroup._id,
+			fileURL: null,
 			status: "sent",
 		};
-        
 
 		setmessages((prev) => [...prev, messageobj]);
-        socket.emit("message",messageobj);
+		socket.emit("message", messageobj);
 		setmessage("");
 	};
 
@@ -55,9 +58,10 @@ const ChatWindowAdmin: React.FC<ChatWindowAdminProps> = ({ currentGroup }) => {
 			<ChatWindow
 				messages={messages}
 				message={message}
+				group_id={currentGroup?._id || ""}
 				onMessageChange={handleinputchange}
 				onSend={handlebuttonclick}
-				disabled={!message}
+				socket={socket}
 			></ChatWindow>
 		</>
 	);

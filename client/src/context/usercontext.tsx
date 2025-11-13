@@ -41,6 +41,7 @@ export const useUser = () => {
 	return user;
 };
 
+
 export const UserProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
@@ -58,13 +59,11 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 		try {
 			const response = await loginUser(data);
 			const res_data = response.data;
-			if (response.status == 404) {
-				throw new Error("User not found");
-			}
 			setuser({ ...res_data.user, isAnonymous: false });
 			navigate("/chat");
 		} catch (e: any) {
 			console.log(e.message);
+			throw new Error(e);
 		}
 	};
 	const register = async (data: Signup) => {
@@ -75,6 +74,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 			}
 		} catch (e: any) {
 			console.log(e.message);
+			throw new Error(e);
 		}
 	};
 	const logout = async () => {
@@ -82,7 +82,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 			const response = await logoutUser();
 			if (response.data.success) {
 				setuser(null);
-				navigate("/login");
+				navigate("/");
 			}
 		} catch (e: any) {
 			console.log(e.message);
@@ -92,13 +92,15 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 		try {
 			const response = await loginUserByToken();
 			const res_data = response.data;
-   console.log(res_data);
+			console.log(res_data);
 			if (res_data.success) {
 				setuser({ ...res_data.user, isAnonymous: false });
-				navigate("/chat");
-			}else{
-        navigate("/")
-      }
+				if (window.location.pathname !== "/chat") {
+					navigate("/chat");
+				}
+			} else {
+				navigate("/");
+			}
 		} catch (e: any) {
 			console.log(e.message);
 		}

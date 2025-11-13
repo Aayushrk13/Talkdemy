@@ -4,5 +4,6 @@ export interface Message {
 	sender_id: User["_id"]
 	sender_name: User["name"]
 	status: "read" | "delivered" | "sent"
+	fileURL:string | null
 	group_id: string
 }

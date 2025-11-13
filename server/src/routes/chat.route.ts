@@ -1,12 +1,26 @@
 import { Router } from "express";
-import { getclasses,getmembers,get_messages } from "../controller/chat.controller";
+import { getclasses,getmembers,get_messages, uploadfile, checktoxicity } from "../controller/chat.controller";
 import {getGroupMemberCache,getMessagesCache} from "../middleware/caching.middleware";
 const router = Router();
 
-router.route("/classes/:user_id").get(getclasses);
+import multer from "multer";
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "@" + file.originalname); 
+  }
+});
+
+
+const upload = multer({ storage });
+
+router.route("/classes").get(getclasses);
 
 router.route("/members").post(getGroupMemberCache,getmembers);
 
 router.route("/messages/:group_id/:page").get(getMessagesCache,get_messages);
 
+router.route("/upload").post(upload.single("file"),uploadfile);
+
+router.route("/checktoxicity").post(checktoxicity);
 export default router;

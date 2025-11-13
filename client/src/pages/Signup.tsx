@@ -1,7 +1,7 @@
 import { Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
 	Select,
 	SelectContent,
@@ -31,12 +31,11 @@ function Signup() {
 
 	const [password, setpassword] = useState<string>("");
 	const [confpassword, setconfpassword] = useState<string>("");
-
-	// ✅ email validation regex
+	const [error,setError] = useState<boolean>(false);
+	const [errormessage,setErrorMessage] = useState<string>("");
 	const isValidEmail = (email: string) =>
 		/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-	// ✅ form validity
 	const isFormValid =
 		reg_data.name.trim().length > 0 &&
 		isValidEmail(reg_data.email) &&
@@ -44,8 +43,17 @@ function Signup() {
 		password === confpassword &&
 		reg_data.role !== "";
 
-	const handleregister = () => {
-		userContext.register(reg_data as Signup);
+	const handleregister = async() => {
+		try{
+			await userContext.register(reg_data as Signup);
+		}catch(e:any){
+			if(e.message.includes("400")){
+				setErrorMessage("Email is already taken")
+			}else if(e.message.includes("500")){
+				setErrorMessage("Server error. Please try again later.")
+			}
+			setError(true);
+		}
 	}
 
 	return (
@@ -124,6 +132,11 @@ function Signup() {
 							<SelectItem value="teacher">Teacher</SelectItem>
 						</SelectContent>
 					</Select>
+					{error && (
+						<p className="text-red-500 text-sm ml-1">
+							{errormessage}
+						</p>
+					)}
 					<Button className="w-96 h-9" disabled={!isFormValid} onClick={handleregister}>
 						SignUp
 					</Button>
