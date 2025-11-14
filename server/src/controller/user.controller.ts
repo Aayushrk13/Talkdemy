@@ -18,6 +18,7 @@ export async function login(req: Request, res: Response) {
 					process.env.JWT_SECRET_KEY || "fail"
 				);
 			if (user.role == "admin") {
+				res.clearCookie("adminaccesstoken");
 				res.cookie("adminaccesstoken", token, {
 					httpOnly: true,
 					secure: false,

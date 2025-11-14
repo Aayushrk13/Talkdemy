@@ -2,7 +2,7 @@ import { Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginUser } from "@/api";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useUser } from "@/context/usercontext";
 import { useNavigate } from "react-router-dom";
 

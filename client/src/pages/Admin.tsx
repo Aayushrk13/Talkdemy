@@ -213,8 +213,8 @@ const AdminGroups: React.FC = () => {
 
 	return (
 		<div className="h-screen w-screen flex flex-col">
-			<div className="h-14 bg-gray-100 border-b flex items-center px-4 shadow-sm">
-				<h1 className="text-lg font-semibold text-gray-700">Admin Dashboard</h1>
+			<div className="h-14 bg-gray-700 border-b flex items-center px-4 shadow-sm">
+				<h1 className="text-lg font-semibold text-white">Admin Dashboard</h1>
 			</div>
 
 			<div className="flex flex-row flex-1 overflow-hidden">

@@ -145,3 +145,12 @@ export async function checktoxicity(req: Request, res: Response) {
 	console.log(data);
   return res.status(200).json({success:true,toxicity_score:data.attributeScores.TOXICITY.spanScores});
 }
+
+export async function getTeacher(req:Request,res:Response){
+	const teacher_id = req.query.teacher_id as string;
+	const teacher = await User.findById(teacher_id);
+	console.log(teacher);
+	if(teacher){
+		return res.status(200).json({success:true,teacher:teacher});
+	}
+}

@@ -44,23 +44,16 @@ export default function MessageBox({
 		<div
 			className={`flex flex-col ${isOwnmessage ? "items-end" : "items-start"}`}
 		>
-			<p className="text-xs text-gray-700">
-				{isOwnmessage && userContext.user?.isAnonymous
-					? "Anonymous"
-					: sender_name}
-			</p>
+			<p className="text-xs text-gray-700">{sender_name}</p>
 
 			{fileURL ? (
 				<div
 					className={`max-w-xs p-3 rounded my-1 flex flex-col gap-2 break-words ${
-						isOwnmessage && userContext.user?.isAnonymous
-							? "bg-black text-white self-end"
-							: isOwnmessage
+						isOwnmessage
 							? "bg-gray-800 text-white self-end"
 							: "bg-gray-200 text-black self-start"
 					}`}
 				>
-					{/* Image Preview Thumbnail */}
 					{isImage && (
 						<img
 							src={fileURL}
@@ -70,7 +63,6 @@ export default function MessageBox({
 						/>
 					)}
 
-					{/* Video Preview */}
 					{isVideo && (
 						<video
 							controls
@@ -83,7 +75,6 @@ export default function MessageBox({
 						</video>
 					)}
 
-					{/* File Info Row */}
 					<div className="flex items-center justify-between gap-2">
 						<p className="text-sm font-medium break-all truncate">{fileName}</p>
 
@@ -94,9 +85,7 @@ export default function MessageBox({
 								target="_blank"
 								rel="noopener noreferrer"
 								className={`flex items-center gap-1 text-sm px-2 py-1 rounded hover:opacity-90 ${
-									isOwnmessage && userContext.user?.isAnonymous
-										? "bg-white text-black"
-										: isOwnmessage
+									isOwnmessage
 										? "bg-white text-black"
 										: "bg-gray-800 text-white"
 								}`}
@@ -109,16 +98,13 @@ export default function MessageBox({
 			) : (
 				<div
 					className={`inline-block max-w-xs p-2 rounded my-1 ${
-						isOwnmessage && userContext.user?.isAnonymous
-							? "bg-black text-white"
-							: "bg-gray-200 text-black"
+						isOwnmessage ? "bg-gray-700 text-white" : "bg-gray-200 text-black"
 					}`}
 				>
 					<p className="whitespace-pre-wrap break-words">{content}</p>
 				</div>
 			)}
 
-			{/* 🔍 Image Preview Modal */}
 			{isPreviewOpen && isImage && (
 				<div
 					className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
@@ -126,7 +112,7 @@ export default function MessageBox({
 				>
 					<div
 						className="relative max-w-4xl max-h-[90vh] flex items-center justify-center"
-						onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image itself
+						onClick={(e) => e.stopPropagation()}
 					>
 						<img
 							src={fileURL}

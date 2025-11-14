@@ -50,6 +50,9 @@ const getallgroups = () => {
     return apiObj.get(`/admin/groups`);
 };
 
+const getTeacher = (teacher_id:string)=>{
+    return apiObj.get(`chat/getteacher?teacher_id=${teacher_id}`);
+}
 const searchstudents = (query:string)=>{
     return apiObj.get(`admin/getsearched_student?prefix=${query}`)
 }
@@ -94,6 +97,7 @@ export {
     getmembers,
     getmessages,
     getallgroups,
+    getTeacher,
     searchstudents,
     searchteachers,
     creategroup,

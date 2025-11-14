@@ -97,13 +97,11 @@ function Chat() {
 		fetchmessages(currentgroup._id, pageContext.page);
 	}, [pageContext.page]);
 
-	const [isanonymous, setisanonymous] = useState(false);
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 	const [message, setmessage] = useState("");
 	const [messages, setmessages] = useState<Message[]>([]);
 	const [members, setmembers] = useState<User[]>([]);
 
-	const toggleAnonymous = () => setisanonymous(!isanonymous);
 	const handleinputchange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setmessage(e.target.value);
 
@@ -116,15 +114,15 @@ function Chat() {
 
 	const handlebuttonclick = async () => {
 		if (!userContext.user || !currentgroup._id) return;
-		// //call backend for toxicity score
-		// const toxicity_response = await checktoxicity(message);
-		// if(toxicity_response.data.toxicity_score[0].score.value>0.7){
-		// 	alert("This message is very toxic. Please try to avoid such language.");
-		// 	return;
-		// }
+		//call backend for toxicity score
+		const toxicity_response = await checktoxicity(message);
+		if(toxicity_response.data.toxicity_score[0].score.value>0.7){
+			alert("This message is very toxic. Please try to avoid such language.");
+			return;
+		}
 		const messageobj: Message = {
 			sender_id: userContext.user?._id,
-			sender_name: isanonymous ? "Anonymous" : userContext.user?.name,
+			sender_name:  userContext.user?.name,
 			content: message,
 			group_id: currentgroup._id,
 			fileURL: null,
@@ -148,8 +146,6 @@ function Chat() {
 				<div className="border-r border-gray-200 w-1/5 bg-white shadow-md flex flex-col h-screen">
 					<UserSection
 						userName={userContext.user?.name || "Guest"}
-						isAnonymous={isanonymous}
-						onToggleAnonymous={toggleAnonymous}
 					/>
 					<GroupList
 						groups={groupContext.groups}

@@ -3,6 +3,5 @@ export interface User{
     name : string,
     email : string,
     role : "teacher" | "student"|"admin"|"",
-    isAnonymous : boolean
 }
 

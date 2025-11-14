@@ -26,7 +26,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 	message,
 	onMessageChange,
 	onSend,
-	socket,
 	group_id,
 }) => {
 	const userContext = useUser();
