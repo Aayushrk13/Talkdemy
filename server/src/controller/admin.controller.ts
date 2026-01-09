@@ -5,6 +5,8 @@ import Class from "../model/class.model.js";
 import User from "../model/user.model.js"
 import { Group } from "types/Group.js";
 import Message from "../model/message.model.js";
+import { Types } from "mongoose";
+import GroupInvite from "../model/groupinvite.model.js";
 
 export const loginbytokenadmin = async(req:Request,res:Response)=>{
 	const token = req.cookies.adminaccesstoken;
@@ -58,24 +60,72 @@ export const search_teacher = async(req:Request,res:Response)=>{
 	return res.status(200).json({success:true,teachers:teachers});
 }
 interface groupDatatype{
+	creator_id:string,
 	name:string,
 	teacher_id:string,
 	members:string[],
 	last_message:any
 }
-export const createGroup = async(req: Request, res: Response) => {
-	//search users using email and have the teacher also be searched using email but
-	const groupData:groupDatatype = req.body;
-	console.log("group creation");
-	console.log(groupData);
-	try{
-		const res_class = await Class.create({name:groupData.name,teacher_id:groupData.teacher_id,members:groupData.members,last_message:null});
-		if(res_class._id){
-			return res.status(200).json({success:true});
+// export const createGroup = async(req: Request, res: Response) => {
+// 	//search users using email and have the teacher also be searched using email but
+// 	const groupData:groupDatatype = req.body;
+// 	console.log("group creation");
+// 	console.log(groupData);
+// 	try{
+// 		const res_class = await Class.create({name:groupData.name,teacher_id:groupData.teacher_id,members:groupData.members,last_message:null});
+// 		if(res_class._id){
+// 			return res.status(200).json({success:true});
+// 		}
+// 	}catch(e:any){
+// 		console.log(e);
+// 	}
+// };
+
+const inviteToGroup = async(groupData:groupDatatype,group_id:Types.ObjectId)=>{
+	const currentGroup = await Class.findOne({_id:group_id});
+	if(groupData.members.length > 0){
+		for(const id of groupData.members){
+			const userId = new Types.ObjectId(id)	
+			const userExists = await User.findById(userId);
+			if(!userExists) continue;
+			if(currentGroup?.members.includes(userId)){
+				return;
+			}
+
+			await GroupInvite.create({
+				group_name:groupData.name,
+				invitedUserId:userId,
+				status:"pending",
+				invitedByUserId:groupData.creator_id
+			});	
 		}
-	}catch(e:any){
-		console.log(e);
 	}
+	if(!currentGroup){
+		//group not found	
+		return;
+	}
+}
+
+export const createGroup = async (req: Request, res: Response) => {
+  try {
+	const groupData:groupDatatype = req.body;
+
+    const group = await Class.create({
+      name:groupData.name,
+      teacher_id:groupData.teacher_id,
+      last_message: null
+    });
+
+	inviteToGroup(groupData,group._id)
+    return res.status(201).json({
+      success: true,
+      groupId: group._id
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false });
+  }
 };
 
 export const editGroup = async(req: Request, res: Response) => {

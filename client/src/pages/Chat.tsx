@@ -7,13 +7,14 @@ import { useEffect, useRef, useState } from "react";
 import { useGroup } from "@/context/groupcontext";
 import { useUser } from "@/context/usercontext";
 import { socket } from "@/socket/socket";
-import { checktoxicity, getmembers, getmessages } from "@/api";
+import { checktoxicity, getmembers, getmessages,getinvites, handle_invite } from "@/api";
 import type { Group } from "types/Group";
 import type { Message } from "types/Message";
 import { motion, AnimatePresence } from "framer-motion";
 import { ListCollapse } from "lucide-react";
 import { usePage } from "@/context/pagecontext";
 import type { User } from "../../types/User.ts";
+import GroupInviteDropdown from "@/components/widget/GroupInviteDropdown.tsx";
 
 function Chat() {
 	const userContext = useUser();
@@ -87,12 +88,13 @@ function Chat() {
 	useEffect(() => {
 		if (!currentgroup._id) return;
 		fetchmembers(currentgroup);
-		pageContext.resetPage(); 
+		pageContext.resetPage();
 		fetchmessages(currentgroup._id, 1); // manually load first page
+		fetchGroupInvites();
 	}, [currentgroup]);
 
 	useEffect(() => {
-		if (pageContext.page === 1) return; 
+		if (pageContext.page === 1) return;
 		console.log("page is changed", pageContext.page);
 		fetchmessages(currentgroup._id, pageContext.page);
 	}, [pageContext.page]);
@@ -101,6 +103,12 @@ function Chat() {
 	const [message, setmessage] = useState("");
 	const [messages, setmessages] = useState<Message[]>([]);
 	const [members, setmembers] = useState<User[]>([]);
+	const [groupinvites,setgroupinvites] = useState([]);
+	const fetchGroupInvites = async()=>{
+		const resultGroupInvites = await getinvites(userContext.user?._id || "NOUSER");
+		console.log(resultGroupInvites.data)
+		setgroupinvites(resultGroupInvites.data.groupinvites);
+	}
 
 	const handleinputchange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setmessage(e.target.value);
@@ -115,14 +123,14 @@ function Chat() {
 	const handlebuttonclick = async () => {
 		if (!userContext.user || !currentgroup._id) return;
 		//call backend for toxicity score
-		const toxicity_response = await checktoxicity(message);
-		if(toxicity_response.data.toxicity_score[0].score.value>0.7){
-			alert("This message is very toxic. Please try to avoid such language.");
-			return;
-		}
+		// const toxicity_response = await checktoxicity(message);
+		// if (toxicity_response.data.toxicity_score[0].score.value > 0.7) {
+		// 	alert("This message is very toxic. Please try to avoid such language.");
+		// 	return;
+		// }
 		const messageobj: Message = {
 			sender_id: userContext.user?._id,
-			sender_name:  userContext.user?.name,
+			sender_name: userContext.user?.name,
 			content: message,
 			group_id: currentgroup._id,
 			fileURL: null,
@@ -144,9 +152,18 @@ function Chat() {
 			<Navbar />
 			<div className="flex flex-row flex-1 overflow-hidden">
 				<div className="border-r border-gray-200 w-1/5 bg-white shadow-md flex flex-col h-screen">
-					<UserSection
-						userName={userContext.user?.name || "Guest"}
-					/>
+					<UserSection userName={userContext.user?.name || "Guest"} />
+					<div className="flex p-4 border-b justify-center">
+						<GroupInviteDropdown
+							invites={groupinvites}
+							onAccept={() => {
+								handle_invite(true);
+							}}
+							onReject={() => {
+								handle_invite(false);
+							}}
+						/>
+					</div>
 					<GroupList
 						groups={groupContext.groups}
 						onGroupClick={handlegroupclick}

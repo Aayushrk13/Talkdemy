@@ -23,7 +23,7 @@ import {
 	getmembersadmin,
 	editgroup,
 	deletegroup,
-	getUser,
+	getUserAdmin,
 } from "@/api";
 import type { Group } from "../../types/Group";
 import type { User } from "../../types/User";
@@ -36,7 +36,7 @@ const AdminGroups: React.FC = () => {
 	}, [currentGroup]);
 	const getteacher = async () => {
 		if (currentGroup) {
-			const response = await getUser(currentGroup?.teacher_id);
+			const response = await getUserAdmin(currentGroup?.teacher_id);
 			if (response.data.success) {
 				setcurrentteacher(response.data.user_name);
 			}
@@ -110,6 +110,7 @@ const AdminGroups: React.FC = () => {
 			return member._id;
 		});
 		const groupData = {
+			creator_id: "690c8993402ce15f6a748a5f",
 			name: formData.name,
 			teacher_id: selectedTeacher._id,
 			members: members_id,
@@ -117,7 +118,6 @@ const AdminGroups: React.FC = () => {
 		};
 
 		if (editId) {
-			// await axios.put(`${API_URL}/${editId}`, groupData);
 			const response = await editgroup({ ...groupData, _id: editId._id });
 			console.log(response);
 			if (response.data.success) {

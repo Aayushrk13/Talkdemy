@@ -70,7 +70,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 		try {
 			const response = await registerUser(data);
 			if (response.data.success) {
-				navigate("/");
+				navigate("/login");
 			}
 		} catch (e: any) {
 			console.log(e.message);
@@ -99,7 +99,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 					navigate("/chat");
 				}
 			} else {
-				navigate("/");
+				navigate("/login");
 			}
 		} catch (e: any) {
 			console.log(e.message);

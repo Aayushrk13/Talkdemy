@@ -7,6 +7,7 @@ import { PageProvider } from "./context/pagecontext";
 import { GroupProvider } from "./context/groupcontext";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
+import Home from "./pages/Home";
 function App() {
   //wrap in other context
   return (
@@ -15,7 +16,8 @@ function App() {
         <GroupProvider>
           <PageProvider>
             <Routes>
-              <Route path="/" element={<Login />}></Route>
+              <Route path="/" element={<Home />}></Route>
+              <Route path="/login" element={<Login />}></Route>
               <Route path="/signup" element={<Signup />}></Route>
               <Route path="/chat" element={<Chat />}></Route>
               <Route path="/admin" element = {<AdminLogin/>}></Route>

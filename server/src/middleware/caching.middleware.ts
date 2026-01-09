@@ -10,7 +10,7 @@ export const getGroupMemberCache = async (
   try {
     const current_group = req.body as Group;
     const members_data = await client.json.get(`members:${current_group._id}`);
-    if (!members_data) {
+    if (!members_data || members_data) {
       return next();
     }
     return res.status(200).json({ success: true, members_data: members_data });

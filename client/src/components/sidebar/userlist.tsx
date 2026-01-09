@@ -14,11 +14,6 @@ const UserSection: React.FC<UserSectionProps> = ({
           <span className="text-xs text-gray-500">Online</span>
         </div>
       </div>
-
-      <div className="flex items-center gap-2 p-4 border-b">
-        <p className="text-sm text-gray-600">
-        </p>
-      </div>
     </div>
   );
 };

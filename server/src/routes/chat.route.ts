@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getclasses,getmembers,get_messages, uploadfile, checktoxicity, getTeacher } from "../controller/chat.controller";
+import { getclasses,getmembers,get_messages, uploadfile, checktoxicity, getTeacher, getGroupInvites, getUser, handle_groupinvite } from "../controller/chat.controller";
 import {getGroupMemberCache,getMessagesCache} from "../middleware/caching.middleware";
 const router = Router();
 
@@ -24,4 +24,7 @@ router.route("/upload").post(upload.single("file"),uploadfile);
 
 router.route("/getteacher").get(getTeacher);
 router.route("/checktoxicity").post(checktoxicity);
+router.route("/getinvites").get(getGroupInvites);
+router.route("/getuser").get(getUser);
+router.route("/handlegroupinvite").post(handle_groupinvite);
 export default router;

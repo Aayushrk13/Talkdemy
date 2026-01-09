@@ -13,10 +13,10 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "@/context/usercontext";
 
 interface Signup {
-	name: string,
-	email: string,
-	password: string,
-	role: "student" | "teacher" | ""
+	name: string;
+	email: string;
+	password: string;
+	role: "student" | "teacher" | "";
 }
 function Signup() {
 	const navigate = useNavigate();
@@ -31,8 +31,8 @@ function Signup() {
 
 	const [password, setpassword] = useState<string>("");
 	const [confpassword, setconfpassword] = useState<string>("");
-	const [error,setError] = useState<boolean>(false);
-	const [errormessage,setErrorMessage] = useState<string>("");
+	const [error, setError] = useState<boolean>(false);
+	const [errormessage, setErrorMessage] = useState<string>("");
 	const isValidEmail = (email: string) =>
 		/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -43,22 +43,27 @@ function Signup() {
 		password === confpassword &&
 		reg_data.role !== "";
 
-	const handleregister = async() => {
-		try{
+	const handleregister = async () => {
+		try {
 			await userContext.register(reg_data as Signup);
-		}catch(e:any){
-			if(e.message.includes("400")){
-				setErrorMessage("Email is already taken")
-			}else if(e.message.includes("500")){
-				setErrorMessage("Server error. Please try again later.")
+		} catch (e: any) {
+			if (e.message.includes("400")) {
+				setErrorMessage("Email is already taken");
+			} else if (e.message.includes("500")) {
+				setErrorMessage("Server error. Please try again later.");
 			}
 			setError(true);
 		}
-	}
+	};
 
 	return (
 		<div>
-			<div className="flex flex-row w-full justify-center items-center py-4 border-b-2 border-[#A1ADB5] gap-2">
+			<div
+				className="flex flex-row w-full justify-center items-center py-4 border-b-2 border-[#A1ADB5] gap-2"
+				onClick={() => {
+					navigate("/");
+				}}
+			>
 				<Boxes />
 				<p className="font-bold text-2xl">Talkdemy</p>
 			</div>
@@ -83,10 +88,11 @@ function Signup() {
 					<Input
 						type="email"
 						placeholder="Email"
-						className={`h-9 w-96 ${reg_data.email && !isValidEmail(reg_data.email)
+						className={`h-9 w-96 ${
+							reg_data.email && !isValidEmail(reg_data.email)
 								? "border-red-500"
 								: ""
-							}`}
+						}`}
 						onChange={(e) => {
 							setreg_data({ ...reg_data, email: e.target.value });
 						}}
@@ -122,7 +128,8 @@ function Signup() {
 						<p className="text-red-500 text-sm">Passwords do not match</p>
 					)}
 
-					<Select onValueChange={(value) => setreg_data({ ...reg_data, role: value })}
+					<Select
+						onValueChange={(value) => setreg_data({ ...reg_data, role: value })}
 					>
 						<SelectTrigger className="w-full">
 							<SelectValue placeholder="Select a role" />
@@ -132,12 +139,12 @@ function Signup() {
 							<SelectItem value="teacher">Teacher</SelectItem>
 						</SelectContent>
 					</Select>
-					{error && (
-						<p className="text-red-500 text-sm ml-1">
-							{errormessage}
-						</p>
-					)}
-					<Button className="w-96 h-9" disabled={!isFormValid} onClick={handleregister}>
+					{error && <p className="text-red-500 text-sm ml-1">{errormessage}</p>}
+					<Button
+						className="w-96 h-9"
+						disabled={!isFormValid}
+						onClick={handleregister}
+					>
 						SignUp
 					</Button>
 					<span className="self-center">

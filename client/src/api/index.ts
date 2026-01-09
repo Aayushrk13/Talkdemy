@@ -76,16 +76,28 @@ const deletegroup = (grouptobeDeletedId:string)=>{
 const getmessagesAdmin = (groupId:string)=>{
     return apiObj.get(`admin/getmessagesAdmin?groupId=${groupId}`);
 }
-const getUser = (user_id:string)=>{
+const getUserAdmin = (user_id:string)=>{
     return apiObj.get(`admin/getuser?user_id=${user_id}`);
 }
 
+const getUser = (user_id:string)=>{
+    return apiObj.get(`admin/getuser?user_id=${user_id}`);
+}
 const upload_file=(file:FormData)=>{
     return apiObj.post("chat/upload",file);
 }
 
+const getinvites = (userid:string)=>{
+    return apiObj.get(`chat/getinvites?user_id=${userid}`);
+}
+
 const checktoxicity = (message:string)=>{
     return apiObj.post("chat/checktoxicity",{message});
+}
+
+//both accept and reject are handled by this
+const handle_invite = (response:boolean)=>{
+    return apiObj.post("chat/handlegroupinvite",{response});
 }
 export {
     loginUser,
@@ -108,4 +120,7 @@ export {
     getUser,
     upload_file,
     checktoxicity,
+    getinvites,
+    getUserAdmin,
+    handle_invite,
 };

@@ -1,0 +1,4 @@
+2 Take permission form user to be added to the group
+3 enable one to one chatting by everyone
+4 seen received in individuals in chat
+ 
