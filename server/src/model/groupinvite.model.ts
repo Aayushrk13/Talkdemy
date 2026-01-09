@@ -4,6 +4,7 @@ export type InviteStatus = "pending" | "accepted" | "declined" | "expired";
 
 export interface GroupInviteDocument extends Document {
     group_name:String;
+	groupId: Types.ObjectId;
 	invitedUserId: Types.ObjectId;
 	invitedByUserId: Types.ObjectId;
 	status: InviteStatus;
@@ -16,6 +17,10 @@ const GroupInviteSchema = new Schema<GroupInviteDocument>(
             type:String,
             required:true
         },
+		groupId:{
+			type: SchemaTypes.ObjectId,
+			required:true,
+		},
 		invitedUserId: {
 			type: SchemaTypes.ObjectId,
 			ref: "User",

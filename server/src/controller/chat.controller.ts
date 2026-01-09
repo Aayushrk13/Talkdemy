@@ -191,12 +191,21 @@ export const getUser = async (req: Request, res: Response) => {
 };
 
 export const handle_groupinvite = async (req: Request, res: Response) => {
-	const { response } = req.body;
+	//inviteId is the id of the invite request not the group
+	const { response,inviteId } = req.body;
 	if (response) {
 		//handle accepted
+		const groupInvite = await GroupInvite.findById(inviteId);	
+		console.log(groupInvite);
+		if(!groupInvite) return;
+		await Class.updateOne({_id:groupInvite.groupId},{$addToSet:{
+			members: groupInvite.invitedUserId
+		}});
+		await GroupInvite.findByIdAndDelete(inviteId);
 		console.log("accepted");
 	} else {
 		//handle rejected
+		await GroupInvite.findByIdAndDelete(inviteId);
 		console.log("rejected");
 	}
 	return res.end("end")

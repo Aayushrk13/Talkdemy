@@ -93,6 +93,7 @@ const inviteToGroup = async(groupData:groupDatatype,group_id:Types.ObjectId)=>{
 			}
 
 			await GroupInvite.create({
+				groupId:group_id,
 				group_name:groupData.name,
 				invitedUserId:userId,
 				status:"pending",
@@ -129,14 +130,24 @@ export const createGroup = async (req: Request, res: Response) => {
 };
 
 export const editGroup = async(req: Request, res: Response) => {
-	const grouptobeupdated : Group = req.body;
+	const grouptobeupdated : any = req.body;
 	console.log(grouptobeupdated)
 	const updatedgroup = await Class.updateOne({_id:grouptobeupdated._id},{$set:{
 		name:grouptobeupdated.name,
-		members:grouptobeupdated.members,
 		teacher_id:grouptobeupdated.teacher_id,
 		last_message:null,
 	}});
+	const groupData :groupDatatype= {
+		creator_id: grouptobeupdated._id,
+		last_message : null,
+		members : grouptobeupdated.members,
+		name : grouptobeupdated.name,
+		teacher_id : grouptobeupdated.teacher_id
+	}
+	//for testting the difference in the data from frontend
+	console.log(groupData)
+	console.log(grouptobeupdated)
+	inviteToGroup(groupData,grouptobeupdated._id);
 	console.log(updatedgroup)
 	if(updatedgroup){
 		return res.status(200).json({success:true});

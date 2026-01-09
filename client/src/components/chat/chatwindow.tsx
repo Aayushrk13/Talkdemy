@@ -21,23 +21,31 @@ interface ChatWindowProps {
 	group_id: string;
 }
 
+type typingUsersType = {
+	userId: string;
+	username: string;
+};
 const ChatWindow: React.FC<ChatWindowProps> = ({
 	messages,
 	message,
 	onMessageChange,
 	onSend,
 	group_id,
+	socket,
 }) => {
 	const userContext = useUser();
 	const divRef = useRef<HTMLDivElement>(null);
+	const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const isTypingRef = useRef(false);
 	const [sendDisabled, setSendDisabled] = useState<boolean>(true);
 	const fileinputRef = useRef<HTMLInputElement>(null);
 	const pageContext = usePage();
 	const div = divRef.current;
 	const prevScrollHeightRef = useRef<number>(0);
 	const [file, setfile] = useState<File | null>(null);
+	const [typingUsers, setTypingUsers] = useState<typingUsersType[]>([]);
 	useEffect(() => {
-	console.log(messages)
+		console.log(messages);
 	}, [messages]);
 	useEffect(() => {
 		if (div) {
@@ -46,10 +54,57 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 			div.scrollTop = newHeight - prevScrollHeightRef.current; // preserve position
 		}
 	}, [messages]);
+	useEffect(() => {
+		// socket.on("typing:start", ({ userId,username }) => {
+		// 	if (userId !== userContext.user?._id) {
+		// 		setTypingUsers((prev) =>
+		// 			prev.includes(userId) ? prev : [...prev, {userId,username}]
+		// 		);
+		// 	}
+		// });
+		socket.on("typing:start", ({ userId, username }) => {
+			if(userId == userContext.user?._id) return;
+			setTypingUsers((prev) => {
+				if (prev.some((u) => u.userId === userId)) return prev;
+				console.log(username);
+				return [...prev, { userId, username }];
+			});
+		});
+
+		socket.on("typing:stop", ({ userId }) => {
+			setTypingUsers((prev) => prev.filter((typingUser) => typingUser.userId !== userId));
+		});
+
+		return () => {
+			socket.off("typing:start");
+			socket.off("typing:stop");
+		};
+	}, [socket, userContext.user?._id]);
 
 	const handleMessageInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 		onMessageChange(e);
 		setSendDisabled(e.target.value.trim().length === 0 && !file);
+		if (!userContext.user?._id) return;
+		if (!isTypingRef.current) {
+			socket.emit("typing:start", {
+				chatId: group_id,
+				userId: userContext.user._id,
+				username: userContext.user.name,
+			});
+			isTypingRef.current = true;
+		}
+
+		if (typingTimeoutRef.current) {
+			clearTimeout(typingTimeoutRef.current);
+		}
+
+		typingTimeoutRef.current = setTimeout(() => {
+			socket.emit("typing:stop", {
+				chatId: group_id,
+				userId: userContext.user?._id,
+			});
+			isTypingRef.current = false;
+		}, 1500);
 	};
 
 	const handleScroll = () => {
@@ -81,7 +136,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 	const handleSubmit = async (e: FormEvent) => {
 		if (!userContext.user?._id) return;
 		e.preventDefault();
-    if(message.length>0) onSend();
+		if (message.length > 0) onSend();
 
 		if (!file) return;
 		const formData = new FormData();
@@ -102,6 +157,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 				{messages.map((msg: Message, index: number) => (
 					<MessageBox {...msg} key={index} />
 				))}
+				{typingUsers.length > 0 && (
+					<p className="text-s text-gray-500 ml-2 mt-1">
+						{typingUsers.length === 1
+							? `${typingUsers[0].username} is typing ...`
+							: "Multiple people are typing..."}
+					</p>
+				)}
 			</div>
 			<div className="border-t border-gray-300">
 				{file && (

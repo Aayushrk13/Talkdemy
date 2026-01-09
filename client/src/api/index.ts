@@ -96,8 +96,8 @@ const checktoxicity = (message:string)=>{
 }
 
 //both accept and reject are handled by this
-const handle_invite = (response:boolean)=>{
-    return apiObj.post("chat/handlegroupinvite",{response});
+const handle_invite = (response:boolean,inviteId:string)=>{
+    return apiObj.post("chat/handlegroupinvite",{response,inviteId});
 }
 export {
     loginUser,

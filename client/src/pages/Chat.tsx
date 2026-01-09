@@ -156,11 +156,11 @@ function Chat() {
 					<div className="flex p-4 border-b justify-center">
 						<GroupInviteDropdown
 							invites={groupinvites}
-							onAccept={() => {
-								handle_invite(true);
+							onAccept={(inviteId:string) => {
+								handle_invite(true,inviteId);
 							}}
-							onReject={() => {
-								handle_invite(false);
+							onReject={(inviteId:string) => {
+								handle_invite(false,inviteId);
 							}}
 						/>
 					</div>
