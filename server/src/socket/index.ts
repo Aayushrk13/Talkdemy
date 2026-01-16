@@ -2,12 +2,9 @@ import type { Server as HttpServer } from "http";
 import { Server, Socket } from "socket.io";
 import { ObjectId } from "mongodb";
 import Class from "../model/class.model";
-import User from "../model/user.model";
-import { Group } from "types/Group"; //dont fix what is not broken
+import GroupInvite from "../model/groupinvite.model";
 import { Messagetype } from "types/Message";
 import { handle_message } from "../controller/chat.controller";
-import path from "path";
-import fs from "fs";
 let io;
 
 export function initSocket(server: HttpServer) {
@@ -24,7 +21,6 @@ export function initSocket(server: HttpServer) {
 
 		socket.on("message", async (message_data: Messagetype) => {
 			await handle_message(message_data);
-			console.log(message_data);
 			socket.to(message_data.group_id).emit("message", message_data);
 		});
 
@@ -32,21 +28,110 @@ export function initSocket(server: HttpServer) {
 			joinrooms(user_id, socket);
 		});
 
-		socket.on("typing:start", ({ chatId, userId,username }) => {
-			console.log(username)
-			socket.to(chatId).emit("typing:start", { userId,username });
+		socket.on("invite:accepted", async (inviteId: string) => {
+			const groupInvite = await GroupInvite.findById(inviteId);
+			if (!groupInvite) return;
+
+			console.log(groupInvite);
+			const chat = await Class.findById(groupInvite.groupId);
+			if (!chat) return;
+
+			const members = [
+				...chat.members.map((m) => m.toString()),
+				groupInvite.invitedUserId.toString(),
+			];
+
+			console.log(members)
+			// enforce DM rules
+			const uniqueSortedMembers = Array.from(new Set(members)).sort((a, b) =>
+				a.localeCompare(b)
+			);
+
+			console.log("sortedmemberIds",uniqueSortedMembers);
+			await Class.updateOne(
+				{ _id: chat._id },
+				{
+					$set: {
+						members: uniqueSortedMembers,
+					},
+				}
+			);
+
+			await GroupInvite.findByIdAndDelete(inviteId);
+			socket.emit("invite:accepted:acknowledge", chat._id);
+		});
+
+		socket.on("invite:rejected", async (inviteId: string) => {
+			await GroupInvite.findByIdAndDelete(inviteId);
+			console.log("rejected");
+		});
+
+		socket.on("typing:start", ({ chatId, userId, username }) => {
+			socket.to(chatId).emit("typing:start", { userId, username });
 		});
 
 		socket.on("typing:stop", ({ chatId, userId }) => {
 			socket.to(chatId).emit("typing:stop", { userId });
 		});
 
+		//use the same group for direct chat
+		socket.on("createDirectChat", async ({ creatorId, receiverId }) => {
+			try {
+				const creatorInviteExists = await GroupInvite.find({
+					invitedByUserId: creatorId,
+					invitedUserId: receiverId,
+				});
+				const receiverInviteExists = await GroupInvite.find({
+					invitedByUserId:receiverId ,
+					invitedUserId:creatorId ,
+				});
+ 
+				if(creatorInviteExists){
+					socket.emit("createdirectchat:fail:invitealreadysent");
+					return;
+				}else if(receiverInviteExists){
+					socket.emit("createdirectchat:fail:invitealreadyreceived");
+                    return;
+				}
+				const groupExists = await Class.findOne({
+					type: "direct",
+					members: { $all: [creatorId, receiverId] },
+				});
+				if(groupExists){
+					socket.emit("createdirectchat:fail:chatexists",{groupExists});
+					return;
+				}
+				console.log("newgroupiscretead")
+				const directMessageGroup = await Class.create({
+					type: "direct",
+					members: [creatorId],
+				});
+				inviteToDirectMessaging(creatorId, receiverId, directMessageGroup._id);
+				socket.emit("createDirectChat:success:groupcreated",{directMessageGroup});
+			} catch (e) {
+				console.log(e);
+			}
+		});
 		socket.on("disconnect", () => {
 			console.log("User disconnected:", socket.id);
 		});
 	});
 	return io;
 }
+
+const inviteToDirectMessaging = async (
+	creatorId: string,
+	receiverId: string,
+	groupId: ObjectId
+) => {
+	await GroupInvite.create({
+		group_name: "Direct Message",
+		groupId: groupId,
+		invitedUserId: receiverId,
+		invitedByUserId: creatorId,
+		status: "pending",
+	});
+};
 
 const joinrooms = async (user_id: string, socket: Socket) => {
 	if (user_id == "admin") {

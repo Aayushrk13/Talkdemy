@@ -55,13 +55,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 		}
 	}, [messages]);
 	useEffect(() => {
-		// socket.on("typing:start", ({ userId,username }) => {
-		// 	if (userId !== userContext.user?._id) {
-		// 		setTypingUsers((prev) =>
-		// 			prev.includes(userId) ? prev : [...prev, {userId,username}]
-		// 		);
-		// 	}
-		// });
 		socket.on("typing:start", ({ userId, username }) => {
 			if(userId == userContext.user?._id) return;
 			setTypingUsers((prev) => {

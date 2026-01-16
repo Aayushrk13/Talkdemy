@@ -104,8 +104,14 @@ const AdminGroups: React.FC = () => {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!selectedTeacher) return;
-		if (selectedMembers.length < 1) return;
+		if (!selectedTeacher) {
+			window.alert("Please select a teacher");
+			return;
+		}
+		if (selectedMembers.length < 1){
+			window.alert("Please select at least one member");
+			return;
+		}
 		const members_id = selectedMembers.map((member) => {
 			return member._id;
 		});
@@ -179,7 +185,7 @@ const AdminGroups: React.FC = () => {
 	const handleDetails = (group: Group) => {
 		setcurrentGroup(group);
 		setshowChat(false);
-};
+	};
 
 	const handleMemberSearch = async (query: string) => {
 		setMemberSearch(query);

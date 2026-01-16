@@ -1,5 +1,3 @@
-import type { User } from "types/User";
-
 function NameBox({user}:any){
     return(<>
           <div

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGroup } from "@/context/groupcontext";
 import { useUser } from "@/context/usercontext";
 import { socket } from "@/socket/socket";
-import { checktoxicity, getmembers, getmessages,getinvites, handle_invite } from "@/api";
+import { checktoxicity, getmembers, getmessages, getinvites } from "@/api";
 import type { Group } from "types/Group";
 import type { Message } from "types/Message";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,28 +21,38 @@ function Chat() {
 
 	useEffect(() => {
 		userContext.loginByToken();
+		socket.on("message", handlemessageincoming);
+		socket.on("file-uploaded", handlemessageincoming);
+		socket.on("invite:accepted:acknowledge", updateGroupList);
+		socket.on("createdirectchat:fail:invitealreadysent", () => {
+			window.alert("Invite is already sent.");
+		});
+		socket.on("createdirectchat:fail:invitealreadyreceived", () => {
+			window.alert("Invitation already exists. Please accept it.");
+		});
+		return () => {
+			socket.off("message");
+			socket.off("file-uploaded");
+			socket.off("createdirectchat:fail:invitealreadysent");
+			socket.off("createdirectchat:fail:invitealreadyreceived");
+			socket.disconnect();
+		};
 	}, []);
 
 	const [currentgroup, setcurrentgroup] = useState<Group>({
 		_id: "",
+		type: "group",
 		name: "",
 		members: [],
 		teacher_id: "",
 		messages: null,
 	});
-
 	useEffect(() => {
 		if (!userContext.user?._id) return;
 		if (!socket.connected) socket.connect();
-		socket.on("message", handlemessageincoming);
-		socket.on("file-uploaded", handlemessageincoming);
 		groupContext.getgroups(userContext.user._id);
 		socket.emit("joinrooms", userContext.user._id);
-		return () => {
-			socket.off("message");
-			socket.off("file-uploaded");
-			socket.disconnect();
-		};
+		fetchGroupInvites();
 	}, [userContext.user]);
 
 	const groupContext = useGroup();
@@ -103,12 +113,14 @@ function Chat() {
 	const [message, setmessage] = useState("");
 	const [messages, setmessages] = useState<Message[]>([]);
 	const [members, setmembers] = useState<User[]>([]);
-	const [groupinvites,setgroupinvites] = useState([]);
-	const fetchGroupInvites = async()=>{
-		const resultGroupInvites = await getinvites(userContext.user?._id || "NOUSER");
-		console.log(resultGroupInvites.data)
+	const [groupinvites, setgroupinvites] = useState([]);
+	const fetchGroupInvites = async () => {
+		const resultGroupInvites = await getinvites(
+			userContext.user?._id || "NOUSER"
+		);
+		console.log(resultGroupInvites.data);
 		setgroupinvites(resultGroupInvites.data.groupinvites);
-	}
+	};
 
 	const handleinputchange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setmessage(e.target.value);
@@ -147,6 +159,19 @@ function Chat() {
 		setmessages([]);
 		setcurrentgroup(groupContext.groups[index]);
 	};
+
+	//user is empty when updating the group list but is working fine when refreshing the page
+	const updateGroupList = (chatId: string) => {
+		console.log(userContext.user);
+		groupContext.getgroups(userContext.user!._id);
+		console.log(groupContext.groups)
+		const newChat = groupContext.groups.find((group)=>{
+			return group._id === chatId;
+		})
+		if(!newChat) return;
+		setcurrentgroup(newChat);
+	};
+
 	return (
 		<div className="h-screen w-screen flex flex-col">
 			<Navbar />
@@ -156,11 +181,11 @@ function Chat() {
 					<div className="flex p-4 border-b justify-center">
 						<GroupInviteDropdown
 							invites={groupinvites}
-							onAccept={(inviteId:string) => {
-								handle_invite(true,inviteId);
+							onAccept={(inviteId: string) => {
+								socket.emit("invite:accepted", inviteId);
 							}}
-							onReject={(inviteId:string) => {
-								handle_invite(false,inviteId);
+							onReject={(inviteId: string) => {
+								socket.emit("invite:rejected", inviteId);
 							}}
 						/>
 					</div>
@@ -176,7 +201,8 @@ function Chat() {
 								{currentgroup.name?.[0]?.toUpperCase()}
 							</div>
 							<h2 className="text-gray-800 font-semibold truncate">
-								{currentgroup.name}
+								{currentgroup.type == "group" ? currentgroup.name : ""}
+								{/*insert name of the other user */}
 							</h2>
 						</div>
 						{!isDetailsOpen && (
@@ -197,6 +223,13 @@ function Chat() {
 						socket={socket}
 						group_id={currentgroup._id}
 					/>
+					<button
+						onClick={() => {
+							console.log(groupContext.groups);
+						}}
+					>
+						grpus
+					</button>
 				</div>
 
 				<AnimatePresence>
@@ -213,6 +246,7 @@ function Chat() {
 								onClose={() => setIsDetailsOpen(false)}
 								currentgroup={currentgroup}
 								members={members}
+								setcurrentgroup={setcurrentgroup}
 							/>
 						</motion.div>
 					)}

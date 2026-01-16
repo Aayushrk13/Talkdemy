@@ -49,11 +49,6 @@ export default function GroupInviteDropdown({
 	}, [invites]);
 
 	const [open, setOpen] = useState(false);
-	const getInviter = async (user_id: string) => {
-		const { data } = await getUser(user_id);
-		console.log(data.user_name);
-		return data.user_name;
-	};
 	return (
 		<div className="relative inline-block">
 			<Button

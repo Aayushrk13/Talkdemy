@@ -63,9 +63,9 @@ export async function getclasses(req: Request, res: Response) {
 	try {
 		const user_id = req.query.id as string;
 		const classes_data = await Class.find({ members: user_id });
-		const c_Data = await Class.find({ teacher_id: user_id });
-		if (c_Data.length > 0) {
-			c_Data.forEach((element) => {
+		const classesDataTeacher = await Class.find({ teacher_id: user_id });
+		if (classesDataTeacher.length > 0) {
+			classesDataTeacher.forEach((element) => {
 				classes_data.push(element);
 			});
 		}
@@ -173,7 +173,6 @@ export async function getGroupInvites(req: Request, res: Response) {
 	console.log(userId);
 	try {
 		const groupInvites = await GroupInvite.find({ invitedUserId: userId });
-		console.log(groupInvites);
 		return res.status(200).json({ success: true, groupinvites: groupInvites }); //Send group invites to the frontend after searching for them even if it is empty
 	} catch (e) {
 		console.log(e);
@@ -188,25 +187,4 @@ export const getUser = async (req: Request, res: Response) => {
 		return res.status(200).json({ success: true, user_name: user.name });
 	}
 	return res.status(200).json({ success: false });
-};
-
-export const handle_groupinvite = async (req: Request, res: Response) => {
-	//inviteId is the id of the invite request not the group
-	const { response,inviteId } = req.body;
-	if (response) {
-		//handle accepted
-		const groupInvite = await GroupInvite.findById(inviteId);	
-		console.log(groupInvite);
-		if(!groupInvite) return;
-		await Class.updateOne({_id:groupInvite.groupId},{$addToSet:{
-			members: groupInvite.invitedUserId
-		}});
-		await GroupInvite.findByIdAndDelete(inviteId);
-		console.log("accepted");
-	} else {
-		//handle rejected
-		await GroupInvite.findByIdAndDelete(inviteId);
-		console.log("rejected");
-	}
-	return res.end("end")
 };
