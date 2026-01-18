@@ -23,7 +23,6 @@ function Chat() {
 		userContext.loginByToken();
 		socket.on("message", handlemessageincoming);
 		socket.on("file-uploaded", handlemessageincoming);
-		socket.on("invite:accepted:acknowledge", updateGroupList);
 		socket.on("createdirectchat:fail:invitealreadysent", () => {
 			window.alert("Invite is already sent.");
 		});
@@ -50,6 +49,10 @@ function Chat() {
 	useEffect(() => {
 		if (!userContext.user?._id) return;
 		if (!socket.connected) socket.connect();
+		socket.on("invite:accepted:acknowledge", (chatId: string) => {
+			if (!userContext.user) return;
+			updateGroupList(chatId);
+		});
 		groupContext.getgroups(userContext.user._id);
 		socket.emit("joinrooms", userContext.user._id);
 		fetchGroupInvites();
@@ -88,7 +91,12 @@ function Chat() {
 
 	useEffect(() => {
 		if (groupContext.groups.length > 0) {
-			setcurrentgroup(groupContext.groups[0]);
+			const savedgroupId = localStorage.getItem("currentgroupId");
+			const matchedgroup = groupContext.groups.find(
+				(group) => group._id === savedgroupId,
+			);
+			console.log(matchedgroup);
+			setcurrentgroup(matchedgroup || groupContext.groups[0]);
 			fetchmembers(groupContext.groups[0]);
 		}
 	}, [groupContext.groups]);
@@ -101,6 +109,9 @@ function Chat() {
 		pageContext.resetPage();
 		fetchmessages(currentgroup._id, 1); // manually load first page
 		fetchGroupInvites();
+		if (currentgroup?._id) {
+			localStorage.setItem("currentgroupId", currentgroup._id);
+		}
 	}, [currentgroup]);
 
 	useEffect(() => {
@@ -116,7 +127,7 @@ function Chat() {
 	const [groupinvites, setgroupinvites] = useState([]);
 	const fetchGroupInvites = async () => {
 		const resultGroupInvites = await getinvites(
-			userContext.user?._id || "NOUSER"
+			userContext.user?._id || "NOUSER",
 		);
 		console.log(resultGroupInvites.data);
 		setgroupinvites(resultGroupInvites.data.groupinvites);
@@ -160,15 +171,13 @@ function Chat() {
 		setcurrentgroup(groupContext.groups[index]);
 	};
 
-	//user is empty when updating the group list but is working fine when refreshing the page
-	const updateGroupList = (chatId: string) => {
-		console.log(userContext.user);
-		groupContext.getgroups(userContext.user!._id);
-		console.log(groupContext.groups)
-		const newChat = groupContext.groups.find((group)=>{
+	const updateGroupList = async (chatId: string) => {
+		const fetchedGroups = await groupContext.getgroups(userContext.user!._id);
+		console.log(fetchedGroups);
+		const newChat = fetchedGroups.find((group) => {
 			return group._id === chatId;
-		})
-		if(!newChat) return;
+		});
+		if (!newChat) return;
 		setcurrentgroup(newChat);
 	};
 
@@ -225,7 +234,7 @@ function Chat() {
 					/>
 					<button
 						onClick={() => {
-							console.log(groupContext.groups);
+							console.log(userContext.user);
 						}}
 					>
 						grpus

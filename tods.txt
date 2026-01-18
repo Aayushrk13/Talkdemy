@@ -1,4 +1,2 @@
 4 seen received in individuals in chat
-5 maintain the same chat when refreshing
-6 make invite accepting and group appearing real time
- 
+5 direct chatting name appearing and test the acutal chatting process 

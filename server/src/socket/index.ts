@@ -17,7 +17,6 @@ export function initSocket(server: HttpServer) {
 	});
 
 	io.on("connection", (socket) => {
-		console.log("User connected:", socket.id);
 
 		socket.on("message", async (message_data: Messagetype) => {
 			await handle_message(message_data);
@@ -28,20 +27,18 @@ export function initSocket(server: HttpServer) {
 			joinrooms(user_id, socket);
 		});
 
+		//I think this is broken
 		socket.on("invite:accepted", async (inviteId: string) => {
 			const groupInvite = await GroupInvite.findById(inviteId);
 			if (!groupInvite) return;
 
-			console.log(groupInvite);
 			const chat = await Class.findById(groupInvite.groupId);
 			if (!chat) return;
-
 			const members = [
 				...chat.members.map((m) => m.toString()),
 				groupInvite.invitedUserId.toString(),
 			];
 
-			console.log(members)
 			// enforce DM rules
 			const uniqueSortedMembers = Array.from(new Set(members)).sort((a, b) =>
 				a.localeCompare(b)

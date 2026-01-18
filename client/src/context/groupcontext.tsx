@@ -11,12 +11,12 @@ import type { Group } from "types/Group";
 
 const GroupContext = createContext<{
 	groups: Group[];
-	getgroups: (id: User["_id"]) => Promise<void>;
-	updateGroups:(group:Group)=>void;
+	getgroups: (id: User["_id"]) => Promise<Group[]>;
+	updateGroups: (group: Group) => void;
 }>({
 	groups: [],
-	getgroups: async () => {},
-	updateGroups:()=>{},
+	getgroups: async () => [],
+	updateGroups: () => {},
 });
 
 const useGroup = () => {
@@ -33,21 +33,21 @@ const GroupProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 			if (id === "") throw new Error("No User is logged in");
 			const response = await getclasses(id);
 			setgroups(response.data.data);
+			return response.data.data;
 		} catch (e) {
 			console.log(e);
 		}
 	};
 
-	const updateGroups = (group:Group)=>{
-		setgroups(prevGroups=>{
-			return {
-				...prevGroups,
-				group
-			}
-		})
-	}
+	const updateGroups = (group: Group) => {
+		setgroups((prev) =>
+			prev.some((g) => g._id === group._id)
+				? prev.map((g) => (g._id === group._id ? group : g))
+				: [...prev, group],
+		);
+	};
 
-	const value = useMemo(() => ({ groups, getgroups,updateGroups }), [groups]);
+	const value = useMemo(() => ({ groups, getgroups, updateGroups }), [groups]);
 
 	return (
 		<GroupContext.Provider value={value}>{children}</GroupContext.Provider>
