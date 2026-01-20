@@ -1,2 +1,5 @@
 4 seen received in individuals in chat
 5 direct chatting name appearing and test the acutal chatting process 
+6 when there is not groups of the user make sure the chat window is not visible.
+7 after message is sent the typing thing appears. (fix will be socket related probably)
+8 in socket server dm success event is emitted but it is not listended on in the frontend

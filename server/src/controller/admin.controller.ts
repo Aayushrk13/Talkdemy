@@ -85,12 +85,13 @@ const inviteToGroup = async (
 	}
 	if (groupData.members.length > 0) {
 		for (const id of groupData.members) {
+			console.log(id)
 			const userId = new Types.ObjectId(id);
 			const userExists = await User.findById(userId);
+			console.log(userExists);
 			if (!userExists) continue;
-			if (currentGroup?.members.includes(userId)) {
-				return;
-			}
+			console.log(currentGroup);
+			if (currentGroup?.members.includes(userId)) continue;
 			console.log("group",group_id)
 			await GroupInvite.create({
 				groupId: group_id,
@@ -127,7 +128,8 @@ export const createGroup = async (req: Request, res: Response) => {
 
 export const editGroup = async (req: Request, res: Response) => {
 	const grouptobeupdated: any = req.body;
-	console.log(grouptobeupdated);
+	console.log("group to be updated: \n",grouptobeupdated);
+	//There is no change in members (remove members without askng and sne dgroup invites to the new members)
 	const updatedgroup = await Class.updateOne(
 		{ _id: grouptobeupdated._id },
 		{
@@ -146,10 +148,7 @@ export const editGroup = async (req: Request, res: Response) => {
 		teacher_id: grouptobeupdated.teacher_id,
 	};
 	//for testting the difference in the data from frontend
-	console.log(groupData);
-	console.log(grouptobeupdated);
 	inviteToGroup(groupData, grouptobeupdated._id);
-	console.log(updatedgroup);
 	if (updatedgroup) {
 		return res.status(200).json({ success: true });
 	}

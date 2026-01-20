@@ -27,7 +27,6 @@ export function initSocket(server: HttpServer) {
 			joinrooms(user_id, socket);
 		});
 
-		//I think this is broken
 		socket.on("invite:accepted", async (inviteId: string) => {
 			const groupInvite = await GroupInvite.findById(inviteId);
 			if (!groupInvite) return;
@@ -74,19 +73,21 @@ export function initSocket(server: HttpServer) {
 		//use the same group for direct chat
 		socket.on("createDirectChat", async ({ creatorId, receiverId }) => {
 			try {
-				const creatorInviteExists = await GroupInvite.find({
+				const creatorInvites = await GroupInvite.find({
 					invitedByUserId: creatorId,
 					invitedUserId: receiverId,
 				});
-				const receiverInviteExists = await GroupInvite.find({
+				console.log("creator invite",creatorInvites);
+				const receiverInvites = await GroupInvite.find({
 					invitedByUserId:receiverId ,
 					invitedUserId:creatorId ,
 				});
+				console.log("receiver invite",receiverInvites);
  
-				if(creatorInviteExists){
+				if(creatorInvites.length>0){
 					socket.emit("createdirectchat:fail:invitealreadysent");
 					return;
-				}else if(receiverInviteExists){
+				}else if(receiverInvites.length>0){
 					socket.emit("createdirectchat:fail:invitealreadyreceived");
                     return;
 				}
@@ -104,7 +105,8 @@ export function initSocket(server: HttpServer) {
 					members: [creatorId],
 				});
 				inviteToDirectMessaging(creatorId, receiverId, directMessageGroup._id);
-				socket.emit("createDirectChat:success:groupcreated",{directMessageGroup});
+				console.log("dm",directMessageGroup);
+				socket.emit("createdirectchat:success:groupcreated",{directMessageGroup});
 			} catch (e) {
 				console.log(e);
 			}
