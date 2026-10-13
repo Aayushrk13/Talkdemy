@@ -28,11 +28,11 @@ Talkdemy is a real-time chat platform built for students. It gives them one plac
 
 | Layer | Technology |
 | --- | --- |
-| Frontend | `client/`: [e.g. React, Vite, Tailwind CSS] |
-| Backend | `server/`: [e.g. Node.js, Express] |
+| Frontend | `client/`:  React, Vite, Tailwind CSS |
+| Backend | `server/`:  Node.js, Express |
 | Real-time | WebSockets (Socket.IO) |
-| Database | [e.g. MongoDB / PostgreSQL] |
-| Auth | [e.g. JWT] |
+| Database | MongoDB |
+| Auth |JWT |
 
 ## 🚀 Getting Started
 
